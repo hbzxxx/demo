@@ -145,9 +145,10 @@ public class EnemyController : MonoBehaviour
         lastAttackTime = Time.time;
         if (playerTarget != null)
         {
-            PlayerController player = playerTarget.GetComponent<PlayerController>();
-            if (player != null)
+            PlayerHealth playerHealth = playerTarget.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
             {
+                playerHealth.TakeDamage(Damage);
                 Debug.Log($"敌人对玩家造成 {Damage} 点伤害！");
             }
         }

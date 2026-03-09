@@ -4,7 +4,9 @@ using UnityEngine;
 
 public enum EventType
 {
-    PLAY_RELOAD_ANIMATION,//²¥·Å»»µ¯¶¯»­
-    NO_PLAY_RELOAD_ANIMATION//²»²¥·Å»»µ¯¶¯»­
+    PLAY_RELOAD_ANIMATION,
+    NO_PLAY_RELOAD_ANIMATION,
+    PLAYER_HEALTH_CHANGED,
+    PLAYER_DIED,
 }
 
