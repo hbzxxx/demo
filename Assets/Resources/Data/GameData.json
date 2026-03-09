@@ -1,0 +1,150 @@
+{
+  "Players": [
+    {
+      "ID": "P001",
+      "Name": "Knight",
+      "MaxHealth": 120,
+      "MoveSpeed": 5,
+      "AttackDamage": 25,
+      "AttackSpeed": 1.2,
+      "Defense": 10
+    }
+  ],
+  "Enemies": [
+    {
+      "ID": "E001",
+      "Name": "Slime",
+      "MaxHealth": 30,
+      "MoveSpeed": 2,
+      "ChaseSpeed": 3,
+      "DetectionRadius": 4,
+      "AttackRange": 1,
+      "Damage": 5,
+      "AttackCooldown": 2,
+      "PatrolWaitTime": 2
+    }
+  ],
+  "Items": [
+    {
+      "ID": "I001",
+      "Name": "生命药水",
+      "Description": "恢复50点生命值",
+      "Type": 2,
+      "Price": 50,
+      "MaxStack": 99,
+      "Value": 50
+    },
+    {
+      "ID": "I002",
+      "Name": "铁剑",
+      "Description": "基础武器，伤害+10",
+      "Type": 0,
+      "Price": 100,
+      "MaxStack": 1,
+      "Value": 10
+    },
+    {
+      "ID": "I003",
+      "Name": "皮甲",
+      "Description": "基础防具，防御+5",
+      "Type": 1,
+      "Price": 80,
+      "MaxStack": 1,
+      "Value": 5
+    },
+    {
+      "ID": "I004",
+      "Name": "史莱姆凝胶",
+      "Description": "任务材料",
+      "Type": 3,
+      "Price": 5,
+      "MaxStack": 99,
+      "Value": 0
+    },
+    {
+      "ID": "I005",
+      "Name": "金币袋",
+      "Description": "包含100金币",
+      "Type": 2,
+      "Price": 0,
+      "MaxStack": 99,
+      "Value": 100
+    }
+  ],
+  "Quests": [
+    {
+      "ID": "Q001",
+      "Title": "讨伐史莱姆",
+      "Description": "击败5只史莱姆",
+      "Type": 0,
+      "State": 1,
+      "TargetID": "E001",
+      "TargetCount": 5,
+      "CurrentCount": 0,
+      "RewardGold": 100,
+      "RewardItems": ["I002"],
+      "PreQuestIDs": [],
+      "NPCID": "N001"
+    },
+    {
+      "ID": "Q002",
+      "Title": "收集材料",
+      "Description": "收集10个史莱姆凝胶",
+      "Type": 1,
+      "State": 1,
+      "TargetID": "I004",
+      "TargetCount": 10,
+      "CurrentCount": 0,
+      "RewardGold": 50,
+      "RewardItems": [],
+      "PreQuestIDs": ["Q001"],
+      "NPCID": "N001"
+    }
+  ],
+  "NPCs": [
+    {
+      "ID": "N001",
+      "Name": "村长",
+      "Title": "村长",
+      "Description": "村庄的村长，有重要任务委托给冒险者",
+      "QuestIDs": ["Q001", "Q002"],
+      "ShopID": "",
+      "DialogLines": "欢迎来到小村庄，冒险者！最近村庄附近出现了很多史莱姆..."
+    },
+    {
+      "ID": "N002",
+      "Name": "商人",
+      "Title": "杂货商",
+      "Description": "出售各种道具",
+      "QuestIDs": [],
+      "ShopID": "S001",
+      "DialogLines": "看看我的商品吧！"
+    }
+  ],
+  "Shops": [
+    {
+      "ID": "S001",
+      "Name": "杂货店",
+      "Items": [
+        {
+          "ItemID": "I001",
+          "Price": 50,
+          "Stock": 99,
+          "IsUnlimited": true
+        },
+        {
+          "ItemID": "I002",
+          "Price": 100,
+          "Stock": 5,
+          "IsUnlimited": false
+        },
+        {
+          "ItemID": "I003",
+          "Price": 80,
+          "Stock": 3,
+          "IsUnlimited": false
+        }
+      ]
+    }
+  ]
+}
