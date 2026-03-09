@@ -1,8 +1,0 @@
-ShopID,ItemID,Price,Stock,IsUnlimited
-S001,I001,50,99,True
-S001,I005,100,10,False
-S001,I008,30,50,True
-S002,I002,100,5,False
-S002,I003,80,3,False
-S002,I006,150,2,False
-S002,I007,120,3,False
