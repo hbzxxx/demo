@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Xml;
 using UnityEditor;
 using UnityEngine;
@@ -9,6 +10,7 @@ public class ExcelTool : EditorWindow
 {
     private string excelPath = "";
     private string jsonOutputPath = "Assets/Resources/Data/";
+    private string templateOutputPath = "Assets/Resources/Data/Templates/";
     private string playerSheetName = "Player";
     private string enemySheetName = "Enemy";
     private string itemSheetName = "Item";
@@ -26,13 +28,31 @@ public class ExcelTool : EditorWindow
 
     private void OnGUI()
     {
-        GUILayout.Label("Excel转JSON工具", EditorStyles.boldLabel);
+        GUILayout.Label("Excel数据配置工具", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
+        // 生成模板部分
+        GUILayout.Label("=== 生成模板文件 ===", EditorStyles.boldLabel);
+        templateOutputPath = EditorGUILayout.TextField("模板输出路径:", templateOutputPath);
+        
+        if (GUILayout.Button("生成CSV模板文件"))
+        {
+            GenerateCSVTemplates();
+        }
+        
+        if (GUILayout.Button("生成示例数据"))
+        {
+            GenerateSampleData();
+        }
+
+        EditorGUILayout.Space();
+        GUILayout.Label("=== 转换Excel为JSON ===", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
         excelPath = EditorGUILayout.TextField("Excel文件路径:", excelPath);
         if (GUILayout.Button("选择Excel文件"))
         {
-            excelPath = EditorUtility.OpenFilePanel("选择Excel文件", "", "xlsx");
+            excelPath = EditorUtility.OpenFilePanel("选择Excel文件", "", "xlsx;csv");
         }
 
         EditorGUILayout.Space();
@@ -50,9 +70,9 @@ public class ExcelTool : EditorWindow
         jsonOutputPath = EditorGUILayout.TextField("JSON输出路径:", jsonOutputPath);
 
         EditorGUILayout.Space();
-        if (GUILayout.Button("转换Excel为JSON"))
+        if (GUILayout.Button("转换Excel/CSV为JSON"))
         {
-            ConvertExcelToJson();
+            ConvertToJson();
         }
 
         EditorGUILayout.Space();
@@ -66,38 +86,163 @@ public class ExcelTool : EditorWindow
 
         EditorGUILayout.Space();
         GUILayout.Label("使用说明:", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField("1. 准备Excel文件(.xlsx)，每个数据类型一个工作表");
-        EditorGUILayout.LabelField("2. 点击转换按钮生成JSON文件");
-
-        EditorGUILayout.Space();
-        GUILayout.Label("工作表字段说明:", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField("Player:", "ID, Name, MaxHealth, MoveSpeed, AttackDamage, AttackSpeed, Defense");
-        EditorGUILayout.LabelField("Enemy:", "ID, Name, MaxHealth, MoveSpeed, ChaseSpeed, DetectionRadius, AttackRange, Damage, AttackCooldown, PatrolWaitTime");
-        EditorGUILayout.LabelField("Item:", "ID, Name, Description, Type(0-4), Price, MaxStack, Value");
-        EditorGUILayout.LabelField("Quest:", "ID, Title, Description, Type(0-3), TargetID, TargetCount, RewardGold, RewardItems, PreQuestIDs, NPCID");
-        EditorGUILayout.LabelField("NPC:", "ID, Name, Title, Description, QuestIDs, ShopID, DialogLines");
-        EditorGUILayout.LabelField("Shop:", "ID, Name");
-        EditorGUILayout.LabelField("ShopItem:", "ShopID, ItemID, Price, Stock, IsUnlimited");
-        EditorGUILayout.LabelField("Weapon:", "ID, Name, FireRate, ReloadTime, ClipSize, MaxReserveAmmo, BulletName, BulletSpeed, BulletTime, Damage, MuzzleEffectsDisappear, BulletPerFire, SpreadAngle");
+        EditorGUILayout.LabelField("1. 点击「生成CSV模板文件」获取空白模板");
+        EditorGUILayout.LabelField("2. 在Excel/WPS中打开CSV文件并填写数据");
+        EditorGUILayout.LabelField("3. 保存后使用本工具转换为JSON");
     }
 
-    private void ConvertExcelToJson()
+    /// <summary>
+    /// 生成CSV模板文件
+    /// </summary>
+    private void GenerateCSVTemplates()
+    {
+        if (!Directory.Exists(templateOutputPath))
+        {
+            Directory.CreateDirectory(templateOutputPath);
+        }
+
+        // Player模板
+        string playerContent = "ID,Name,MaxHealth,MoveSpeed,AttackDamage,AttackSpeed,Defense\nP001,Knight,120,5,25,1.2,10";
+        File.WriteAllText(Path.Combine(templateOutputPath, "Player模板.csv"), playerContent, Encoding.UTF8);
+
+        // Enemy模板
+        string enemyContent = "ID,Name,MaxHealth,MoveSpeed,ChaseSpeed,DetectionRadius,AttackRange,Damage,AttackCooldown,PatrolWaitTime\nE001,Slime,30,2,3,4,1,5,2,2";
+        File.WriteAllText(Path.Combine(templateOutputPath, "Enemy模板.csv"), enemyContent, Encoding.UTF8);
+
+        // Item模板
+        string itemContent = "ID,Name,Description,Type,Price,MaxStack,Value\nI001,生命药水,恢复50点生命值,2,50,99,50";
+        File.WriteAllText(Path.Combine(templateOutputPath, "Item模板.csv"), itemContent, Encoding.UTF8);
+
+        // Quest模板
+        string questContent = "ID,Title,Description,Type,TargetID,TargetCount,RewardGold,RewardItems,PreQuestIDs,NPCID\nQ001,讨伐史莱姆,击败5只史莱姆,0,E001,5,100,I002,,N001";
+        File.WriteAllText(Path.Combine(templateOutputPath, "Quest模板.csv"), questContent, Encoding.UTF8);
+
+        // NPC模板
+        string npcContent = "ID,Name,Title,Description,QuestIDs,ShopID,DialogLines\nN001,村长,村长,村庄的村长,Q001;Q002,,欢迎来到小村庄!";
+        File.WriteAllText(Path.Combine(templateOutputPath, "NPC模板.csv"), npcContent, Encoding.UTF8);
+
+        // Shop模板
+        string shopContent = "ID,Name\nS001,杂货店";
+        File.WriteAllText(Path.Combine(templateOutputPath, "Shop模板.csv"), shopContent, Encoding.UTF8);
+
+        // ShopItem模板
+        string shopItemContent = "ShopID,ItemID,Price,Stock,IsUnlimited\nS001,I001,50,99,True";
+        File.WriteAllText(Path.Combine(templateOutputPath, "ShopItem模板.csv"), shopItemContent, Encoding.UTF8);
+
+        // Weapon模板
+        string weaponContent = "ID,Name,FireRate,ReloadTime,ClipSize,MaxReserveAmmo,BulletName,BulletSpeed,BulletTime,Damage,MuzzleEffectsDisappear,BulletPerFire,SpreadAngle\nW001,手枪,0.2,1.5,12,60,Bullet,20,2,10,0.1,1,5";
+        File.WriteAllText(Path.Combine(templateOutputPath, "Weapon模板.csv"), weaponContent, Encoding.UTF8);
+
+        AssetDatabase.Refresh();
+        EditorUtility.DisplayDialog("成功", $"模板文件已生成到:\n{templateOutputPath}", "确定");
+        Debug.Log($"CSV模板文件已生成: {templateOutputPath}");
+    }
+
+    /// <summary>
+    /// 生成示例数据
+    /// </summary>
+    private void GenerateSampleData()
+    {
+        if (!Directory.Exists(jsonOutputPath))
+        {
+            Directory.CreateDirectory(jsonOutputPath);
+        }
+
+        // 生成完整的示例数据JSON
+        GameData data = new GameData
+        {
+            Players = new PlayerData[]
+            {
+                new PlayerData { ID = "P001", Name = "骑士", MaxHealth = 120, MoveSpeed = 5, AttackDamage = 25, AttackSpeed = 1.2f, Defense = 10 },
+                new PlayerData { ID = "P002", Name = "弓箭手", MaxHealth = 80, MoveSpeed = 6, AttackDamage = 20, AttackSpeed = 2.0f, Defense = 5 },
+                new PlayerData { ID = "P003", Name = "法师", MaxHealth = 60, MoveSpeed = 4, AttackDamage = 35, AttackSpeed = 0.8f, Defense = 3 },
+            },
+            Enemies = new EnemyData[]
+            {
+                new EnemyData { ID = "E001", Name = "史莱姆", MaxHealth = 30, MoveSpeed = 2, ChaseSpeed = 3, DetectionRadius = 4, AttackRange = 1, Damage = 5, AttackCooldown = 2, PatrolWaitTime = 2 },
+                new EnemyData { ID = "E002", Name = "哥布林", MaxHealth = 50, MoveSpeed = 3, ChaseSpeed = 4, DetectionRadius = 5, AttackRange = 1.5f, Damage = 10, AttackCooldown = 1.5f, PatrolWaitTime = 1.5f },
+                new EnemyData { ID = "E003", Name = "兽人", MaxHealth = 100, MoveSpeed = 2, ChaseSpeed = 3.5f, DetectionRadius = 6, AttackRange = 2, Damage = 20, AttackCooldown = 3, PatrolWaitTime = 2 },
+            },
+            Items = new ItemData[]
+            {
+                new ItemData { ID = "I001", Name = "生命药水", Description = "恢复50点生命值", Type = ItemType.Consumable, Price = 50, MaxStack = 99, Value = 50 },
+                new ItemData { ID = "I002", Name = "铁剑", Description = "基础武器，伤害+10", Type = ItemType.Weapon, Price = 100, MaxStack = 1, Value = 10 },
+                new ItemData { ID = "I003", Name = "皮甲", Description = "基础防具，防御+5", Type = ItemType.Armor, Price = 80, MaxStack = 1, Value = 5 },
+                new ItemData { ID = "I004", Name = "史莱姆凝胶", Description = "任务材料", Type = ItemType.Material, Price = 5, MaxStack = 99, Value = 0 },
+                new ItemData { ID = "I005", Name = "金币袋", Description = "包含100金币", Type = ItemType.Consumable, Price = 0, MaxStack = 99, Value = 100 },
+                new ItemData { ID = "I006", Name = "魔法杖", Description = "法师武器，伤害+15", Type = ItemType.Weapon, Price = 150, MaxStack = 1, Value = 15 },
+            },
+            Quests = new QuestData[]
+            {
+                new QuestData { ID = "Q001", Title = "讨伐史莱姆", Description = "击败5只史莱姆", Type = QuestType.Kill, TargetID = "E001", TargetCount = 5, RewardGold = 100, RewardItems = new string[] { "I002" }, PreQuestIDs = new string[] { }, NPCID = "N001", State = QuestState.Available },
+                new QuestData { ID = "Q002", Title = "收集材料", Description = "收集10个史莱姆凝胶", Type = QuestType.Collect, TargetID = "I004", TargetCount = 10, RewardGold = 50, RewardItems = new string[] { }, PreQuestIDs = new string[] { "Q001" }, NPCID = "N001", State = QuestState.Available },
+            },
+            NPCs = new NPCData[]
+            {
+                new NPCData { ID = "N001", Name = "村长", Title = "村长", Description = "村庄的村长，有重要任务委托给冒险者", QuestIDs = new string[] { "Q001", "Q002" }, ShopID = "", DialogLines = "欢迎来到小村庄，冒险者！最近村庄附近出现了很多史莱姆..." },
+                new NPCData { ID = "N002", Name = "商人", Title = "杂货商", Description = "出售各种道具", QuestIDs = new string[] { }, ShopID = "S001", DialogLines = "看看我的商品吧！" },
+            },
+            Shops = new ShopData[]
+            {
+                new ShopData { ID = "S001", Name = "杂货店", Items = new ShopItem[] 
+                { 
+                    new ShopItem { ShopID = "S001", ItemID = "I001", Price = 50, Stock = 99, IsUnlimited = true },
+                    new ShopItem { ShopID = "S001", ItemID = "I002", Price = 100, Stock = 5, IsUnlimited = false },
+                    new ShopItem { ShopID = "S001", ItemID = "I003", Price = 80, Stock = 3, IsUnlimited = false },
+                }},
+            },
+            Weapons = new WeaponData[]
+            {
+                new WeaponData { ID = "W001", Name = "手枪", FireRate = 0.2f, ReloadTime = 1.5f, ClipSize = 12, MaxReserveAmmo = 60, BulletName = "Bullet", BulletSpeed = 20, BulletTime = 2, Damage = 10, MuzzleEffectsDisappear = 0.1f, BulletPerFire = 1, SpreadAngle = 5 },
+                new WeaponData { ID = "W002", Name = "步枪", FireRate = 0.1f, ReloadTime = 2, ClipSize = 30, MaxReserveAmmo = 120, BulletName = "Bullet", BulletSpeed = 30, BulletTime = 3, Damage = 15, MuzzleEffectsDisappear = 0.1f, BulletPerFire = 1, SpreadAngle = 3 },
+                new WeaponData { ID = "W003", Name = "霰弹枪", FireRate = 1, ReloadTime = 3, ClipSize = 6, MaxReserveAmmo = 24, BulletName = "ShotgunBullet", BulletSpeed = 15, BulletTime = 1, Damage = 25, MuzzleEffectsDisappear = 0.15f, BulletPerFire = 5, SpreadAngle = 15 },
+            }
+        };
+
+        string json = JsonUtility.ToJson(data, true);
+        string outputFile = Path.Combine(jsonOutputPath, "GameData.json");
+        File.WriteAllText(outputFile, json);
+
+        AssetDatabase.Refresh();
+        EditorUtility.DisplayDialog("成功", $"示例数据已生成到:\n{outputFile}", "确定");
+        Debug.Log($"示例数据已生成: {outputFile}");
+    }
+
+    /// <summary>
+    /// 转换Excel或CSV为JSON
+    /// </summary>
+    private void ConvertToJson()
     {
         if (string.IsNullOrEmpty(excelPath))
         {
-            EditorUtility.DisplayDialog("错误", "请选择Excel文件!", "确定");
+            EditorUtility.DisplayDialog("错误", "请选择Excel或CSV文件!", "确定");
             return;
         }
 
         if (!File.Exists(excelPath))
         {
-            EditorUtility.DisplayDialog("错误", "Excel文件不存在!", "确定");
+            EditorUtility.DisplayDialog("错误", "文件不存在!", "确定");
             return;
         }
 
         try
         {
-            Dictionary<string, List<Dictionary<string, string>>> allSheets = ReadExcelFile(excelPath);
+            string extension = Path.GetExtension(excelPath).ToLower();
+            Dictionary<string, List<Dictionary<string, string>>> allSheets;
+
+            if (extension == ".csv")
+            {
+                allSheets = ReadCSVFile(excelPath);
+            }
+            else if (extension == ".xlsx")
+            {
+                allSheets = ReadExcelFile(excelPath);
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("错误", "仅支持.xlsx和.csv格式!", "确定");
+                return;
+            }
 
             List<PlayerData> players = new List<PlayerData>();
             List<EnemyData> enemies = new List<EnemyData>();
@@ -176,6 +321,7 @@ public class ExcelTool : EditorWindow
                         if (row.ContainsKey("Description")) quest.Description = row["Description"];
                         int qtype = 0;
                         if (row.ContainsKey("Type")) int.TryParse(row["Type"], out qtype);
+                        if("Type")) int.TryParse(row["Type"], out qtype);
                         quest.Type = (QuestType)qtype;
                         quest.State = QuestState.Available;
                         if (row.ContainsKey("TargetID")) quest.TargetID = row["TargetID"];
@@ -293,15 +439,101 @@ public class ExcelTool : EditorWindow
             AssetDatabase.Refresh();
 
             EditorUtility.DisplayDialog("成功", $"数据已导出到:\n{outputFile}", "确定");
-            Debug.Log($"Excel数据已转换为JSON: {outputFile}");
+            Debug.Log($"数据已转换为JSON: {outputFile}");
         }
         catch (System.Exception e)
         {
             EditorUtility.DisplayDialog("错误", $"转换失败: {e.Message}", "确定");
-            Debug.LogError($"Excel转换错误: {e}");
+            Debug.LogError($"转换错误: {e}");
         }
     }
 
+    /// <summary>
+    /// 读取CSV文件
+    /// </summary>
+    private Dictionary<string, List<Dictionary<string, string>>> ReadCSVFile(string filePath)
+    {
+        Dictionary<string, List<Dictionary<string, string>>> result = new Dictionary<string, List<Dictionary<string, string>>>();
+
+        string fileName = Path.GetFileNameWithoutExtension(filePath);
+        List<Dictionary<string, string>> rows = ParseCSV(filePath);
+
+        if (rows.Count > 0)
+        {
+            result[fileName] = rows;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 解析CSV文件
+    /// </summary>
+    private List<Dictionary<string, string>> ParseCSV(string filePath)
+    {
+        List<Dictionary<string, string>> result = new List<Dictionary<string, string>>();
+
+        string[] lines = File.ReadAllLines(filePath, Encoding.UTF8);
+        if (lines.Length < 1) return result;
+
+        string[] headers = ParseCSVLine(lines[0]);
+
+        for (int i = 1; i < lines.Length; i++)
+        {
+            if (string.IsNullOrWhiteSpace(lines[i])) continue;
+
+            string[] values = ParseCSVLine(lines[i]);
+            Dictionary<string, string> rowData = new Dictionary<string, string>();
+
+            for (int j = 0; j < headers.Length && j < values.Length; j++)
+            {
+                rowData[headers[j]] = values[j];
+            }
+
+            if (rowData.Count > 0)
+            {
+                result.Add(rowData);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 解析CSV单行
+    /// </summary>
+    private string[] ParseCSVLine(string line)
+    {
+        List<string> result = new List<string>();
+        bool inQuotes = false;
+        string current = "";
+
+        for (int i = 0; i < line.Length; i++)
+        {
+            char c = line[i];
+
+            if (c == '"')
+            {
+                inQuotes = !inQuotes;
+            }
+            else if (c == ',' && !inQuotes)
+            {
+                result.Add(current.Trim());
+                current = "";
+            }
+            else
+            {
+                current += c;
+            }
+        }
+
+        result.Add(current.Trim());
+        return result.ToArray();
+    }
+
+    /// <summary>
+    /// 读取Excel文件（xlsx格式）
+    /// </summary>
     private Dictionary<string, List<Dictionary<string, string>>> ReadExcelFile(string filePath)
     {
         Dictionary<string, List<Dictionary<string, string>>> result = new Dictionary<string, List<Dictionary<string, string>>>();
@@ -329,6 +561,9 @@ public class ExcelTool : EditorWindow
         return result;
     }
 
+    /// <summary>
+    /// 获取工作表名称
+    /// </summary>
     private string GetSheetName(string sheetPath, ZipArchive archive)
     {
         string num = Path.GetFileNameWithoutExtension(sheetPath).Replace("sheet", "");
@@ -354,6 +589,9 @@ public class ExcelTool : EditorWindow
         return "Sheet" + num;
     }
 
+    /// <summary>
+    /// 解析工作表
+    /// </summary>
     private List<Dictionary<string, string>> ParseSheet(Stream stream)
     {
         List<Dictionary<string, string>> result = new List<Dictionary<string, string>>();
@@ -400,14 +638,11 @@ public class ExcelTool : EditorWindow
         return result;
     }
 
+    /// <summary>
+    /// 获取单元格值
+    /// </summary>
     private string GetCellValue(XmlNode cell, XmlDocument doc, XmlNamespaceManager nsmgr)
     {
-        string cellRef = "";
-        if (cell.Attributes != null && cell.Attributes["r"] != null)
-        {
-            cellRef = cell.Attributes["r"].Value;
-        }
-
         XmlNode valueNode = cell.SelectSingleNode("main:v", nsmgr);
         if (valueNode != null)
         {
@@ -423,6 +658,9 @@ public class ExcelTool : EditorWindow
         return "";
     }
 
+    /// <summary>
+    /// 匹配工作表名称
+    /// </summary>
     private bool MatchSheetName(string sheetName, string configName, string defaultName)
     {
         if (!string.IsNullOrEmpty(configName) && sheetName == configName)
@@ -432,6 +670,9 @@ public class ExcelTool : EditorWindow
         return false;
     }
 
+    /// <summary>
+    /// 分割字符串为数组
+    /// </summary>
     private string[] SplitToArray(string str)
     {
         if (string.IsNullOrEmpty(str))
