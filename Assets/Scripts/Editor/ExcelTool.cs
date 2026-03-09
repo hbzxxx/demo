@@ -321,7 +321,6 @@ public class ExcelTool : EditorWindow
                         if (row.ContainsKey("Description")) quest.Description = row["Description"];
                         int qtype = 0;
                         if (row.ContainsKey("Type")) int.TryParse(row["Type"], out qtype);
-                        if("Type")) int.TryParse(row["Type"], out qtype);
                         quest.Type = (QuestType)qtype;
                         quest.State = QuestState.Available;
                         if (row.ContainsKey("TargetID")) quest.TargetID = row["TargetID"];
