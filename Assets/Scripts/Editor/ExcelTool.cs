@@ -15,6 +15,7 @@ public class ExcelTool : EditorWindow
     private string npcSheetName = "NPC";
     private string shopSheetName = "Shop";
     private string shopItemSheetName = "ShopItem";
+    private string weaponSheetName = "Weapon";
 
     [MenuItem("Tools/Excel转JSON工具")]
     public static void ShowWindow()
@@ -42,6 +43,7 @@ public class ExcelTool : EditorWindow
         npcSheetName = EditorGUILayout.TextField("NPC工作表:", npcSheetName);
         shopSheetName = EditorGUILayout.TextField("商店工作表:", shopSheetName);
         shopItemSheetName = EditorGUILayout.TextField("商店物品工作表:", shopItemSheetName);
+        weaponSheetName = EditorGUILayout.TextField("武器工作表:", weaponSheetName);
 
         EditorGUILayout.Space();
         jsonOutputPath = EditorGUILayout.TextField("JSON输出路径:", jsonOutputPath);
@@ -74,6 +76,7 @@ public class ExcelTool : EditorWindow
         EditorGUILayout.LabelField("NPC:", "ID, Name, Title, Description, QuestIDs(逗号分隔), ShopID, DialogLines");
         EditorGUILayout.LabelField("Shop:", "ID, Name");
         EditorGUILayout.LabelField("ShopItem:", "ShopID, ItemID, Price, Stock, IsUnlimited(True/False)");
+        EditorGUILayout.LabelField("Weapon:", "ID, Name, FireRate, ReloadTime, ClipSize, MaxReserveAmmo, BulletName, BulletSpeed, BulletTime, Damage, MuzzleEffectsDisappear, BulletPerFire, SpreadAngle");
     }
 
     private void ConvertExcelToJson()
@@ -101,6 +104,7 @@ public class ExcelTool : EditorWindow
             List<NPCData> npcs = new List<NPCData>();
             List<ShopData> shops = new List<ShopData>();
             List<ShopItem> shopItems = new List<ShopItem>();
+            List<WeaponData> weapons = new List<WeaponData>();
 
             foreach (DataTable table in dataSet.Tables)
             {
@@ -227,6 +231,29 @@ public class ExcelTool : EditorWindow
                         shopItems.Add(shopItem);
                     }
                 }
+
+                if (MatchSheetName(sheetName, weaponSheetName, "Weapon"))
+                {
+                    List<Dictionary<string, string>> tableData = ExcelReader.GetTableData(dataSet, sheetName);
+                    foreach (var row in tableData)
+                    {
+                        WeaponData weapon = new WeaponData();
+                        if (row.ContainsKey("ID")) weapon.ID = row["ID"];
+                        if (row.ContainsKey("Name")) weapon.Name = row["Name"];
+                        if (row.ContainsKey("FireRate")) float.TryParse(row["FireRate"], out weapon.FireRate);
+                        if (row.ContainsKey("ReloadTime")) float.TryParse(row["ReloadTime"], out weapon.ReloadTime);
+                        if (row.ContainsKey("ClipSize")) int.TryParse(row["ClipSize"], out weapon.ClipSize);
+                        if (row.ContainsKey("MaxReserveAmmo")) int.TryParse(row["MaxReserveAmmo"], out weapon.MaxReserveAmmo);
+                        if (row.ContainsKey("BulletName")) weapon.BulletName = row["BulletName"];
+                        if (row.ContainsKey("BulletSpeed")) float.TryParse(row["BulletSpeed"], out weapon.BulletSpeed);
+                        if (row.ContainsKey("BulletTime")) float.TryParse(row["BulletTime"], out weapon.BulletTime);
+                        if (row.ContainsKey("Damage")) float.TryParse(row["Damage"], out weapon.Damage);
+                        if (row.ContainsKey("MuzzleEffectsDisappear")) float.TryParse(row["MuzzleEffectsDisappear"], out weapon.MuzzleEffectsDisappear);
+                        if (row.ContainsKey("BulletPerFire")) int.TryParse(row["BulletPerFire"], out weapon.BulletPerFire);
+                        if (row.ContainsKey("SpreadAngle")) float.TryParse(row["SpreadAngle"], out weapon.SpreadAngle);
+                        weapons.Add(weapon);
+                    }
+                }
             }
 
             if (shopItems.Count > 0 && shops.Count > 0)
@@ -252,7 +279,8 @@ public class ExcelTool : EditorWindow
                 Items = items.ToArray(),
                 Quests = quests.ToArray(),
                 NPCs = npcs.ToArray(),
-                Shops = shops.ToArray()
+                Shops = shops.ToArray(),
+                Weapons = weapons.ToArray()
             };
 
             string json = JsonUtility.ToJson(dataSheet, true);

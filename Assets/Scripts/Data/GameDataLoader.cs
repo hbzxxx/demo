@@ -56,6 +56,11 @@ public class GameDataLoader : MonoBehaviour
             ShopManager.Instance.LoadShopData(data.Shops);
         }
 
+        if (data.Weapons != null)
+        {
+            WeaponManager.Instance.LoadWeaponData(data.Weapons);
+        }
+
         Debug.Log("所有数据加载完成！");
     }
 }
@@ -69,4 +74,5 @@ public class GameData
     public QuestData[] Quests;
     public NPCData[] NPCs;
     public ShopData[] Shops;
+    public WeaponData[] Weapons;
 }
