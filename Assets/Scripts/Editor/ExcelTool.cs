@@ -1,57 +1,41 @@
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
 public class ExcelTool : EditorWindow
 {
-    private string excelPath = "";
+    private string dataFolderPath = "Assets/Resources/Data/";
     private string jsonOutputPath = "Assets/Resources/Data/";
-    private string playerSheetName = "Player";
-    private string enemySheetName = "Enemy";
-    private string itemSheetName = "Item";
-    private string questSheetName = "Quest";
-    private string npcSheetName = "NPC";
-    private string shopSheetName = "Shop";
-    private string shopItemSheetName = "ShopItem";
-    private string weaponSheetName = "Weapon";
 
-    [MenuItem("Tools/Excel转JSON工具")]
+    [MenuItem("Tools/数据配置工具")]
     public static void ShowWindow()
     {
-        GetWindow<ExcelTool>("Excel转JSON工具");
+        GetWindow<ExcelTool>("数据配置工具");
     }
 
     private void OnGUI()
     {
-        GUILayout.Label("Excel转JSON工具", EditorStyles.boldLabel);
+        GUILayout.Label("数据配置工具 (CSV转JSON)", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
-        excelPath = EditorGUILayout.TextField("Excel文件路径:", excelPath);
-        if (GUILayout.Button("选择Excel文件"))
+        dataFolderPath = EditorGUILayout.TextField("数据文件夹路径:", dataFolderPath);
+        if (GUILayout.Button("选择数据文件夹"))
         {
-            excelPath = EditorUtility.OpenFilePanel("选择Excel文件", "", "xlsx;xls");
+            dataFolderPath = EditorUtility.OpenFolderPanel("选择数据文件夹", "", "");
+            if (string.IsNullOrEmpty(dataFolderPath))
+            {
+                dataFolderPath = "Assets/Resources/Data/";
+            }
         }
-
-        EditorGUILayout.Space();
-        GUILayout.Label("工作表名称:", EditorStyles.boldLabel);
-        playerSheetName = EditorGUILayout.TextField("玩家工作表:", playerSheetName);
-        enemySheetName = EditorGUILayout.TextField("敌人工作表:", enemySheetName);
-        itemSheetName = EditorGUILayout.TextField("物品工作表:", itemSheetName);
-        questSheetName = EditorGUILayout.TextField("任务工作表:", questSheetName);
-        npcSheetName = EditorGUILayout.TextField("NPC工作表:", npcSheetName);
-        shopSheetName = EditorGUILayout.TextField("商店工作表:", shopSheetName);
-        shopItemSheetName = EditorGUILayout.TextField("商店物品工作表:", shopItemSheetName);
-        weaponSheetName = EditorGUILayout.TextField("武器工作表:", weaponSheetName);
 
         EditorGUILayout.Space();
         jsonOutputPath = EditorGUILayout.TextField("JSON输出路径:", jsonOutputPath);
 
         EditorGUILayout.Space();
-        if (GUILayout.Button("转换Excel为JSON"))
+        if (GUILayout.Button("转换CSV为JSON"))
         {
-            ConvertExcelToJson();
+            ConvertCSVToJson();
         }
 
         EditorGUILayout.Space();
@@ -59,44 +43,26 @@ public class ExcelTool : EditorWindow
         {
             if (Directory.Exists(jsonOutputPath))
             {
-                Application.OpenURL("file://" + Path.GetFullPath(jsonOutputPath));
-            }
-            else
-            {
                 EditorUtility.RevealInFinder(jsonOutputPath);
             }
         }
-        
+
         EditorGUILayout.Space();
-        GUILayout.Label("Excel表格模板说明:", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField("Player:", "ID, Name, MaxHealth, MoveSpeed, AttackDamage, AttackSpeed, Defense");
-        EditorGUILayout.LabelField("Enemy:", "ID, Name, MaxHealth, MoveSpeed, ChaseSpeed, DetectionRadius, AttackRange, Damage, AttackCooldown, PatrolWaitTime");
-        EditorGUILayout.LabelField("Item:", "ID, Name, Description, Type(0-4), Price, MaxStack, Value");
-        EditorGUILayout.LabelField("Quest:", "ID, Title, Description, Type(0-3), TargetID, TargetCount, RewardGold, RewardItems(逗号分隔), PreQuestIDs(逗号分隔), NPCID");
-        EditorGUILayout.LabelField("NPC:", "ID, Name, Title, Description, QuestIDs(逗号分隔), ShopID, DialogLines");
-        EditorGUILayout.LabelField("Shop:", "ID, Name");
-        EditorGUILayout.LabelField("ShopItem:", "ShopID, ItemID, Price, Stock, IsUnlimited(True/False)");
-        EditorGUILayout.LabelField("Weapon:", "ID, Name, FireRate, ReloadTime, ClipSize, MaxReserveAmmo, BulletName, BulletSpeed, BulletTime, Damage, MuzzleEffectsDisappear, BulletPerFire, SpreadAngle");
+        GUILayout.Label("CSV文件模板说明:", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Player.csv:", "ID, Name, MaxHealth, MoveSpeed, AttackDamage, AttackSpeed, Defense");
+        EditorGUILayout.LabelField("Enemy.csv:", "ID, Name, MaxHealth, MoveSpeed, ChaseSpeed, DetectionRadius, AttackRange, Damage, AttackCooldown, PatrolWaitTime");
+        EditorGUILayout.LabelField("Item.csv:", "ID, Name, Description, Type(0-4), Price, MaxStack, Value");
+        EditorGUILayout.LabelField("Quest.csv:", "ID, Title, Description, Type(0-3), TargetID, TargetCount, RewardGold, RewardItems(逗号分隔), PreQuestIDs(逗号分隔), NPCID");
+        EditorGUILayout.LabelField("NPC.csv:", "ID, Name, Title, Description, QuestIDs(逗号分隔), ShopID, DialogLines");
+        EditorGUILayout.LabelField("Shop.csv:", "ID, Name");
+        EditorGUILayout.LabelField("ShopItem.csv:", "ShopID, ItemID, Price, Stock, IsUnlimited");
+        EditorGUILayout.LabelField("Weapon.csv:", "ID, Name, FireRate, ReloadTime, ClipSize, MaxReserveAmmo, BulletName, BulletSpeed, BulletTime, Damage, MuzzleEffectsDisappear, BulletPerFire, SpreadAngle");
     }
 
-    private void ConvertExcelToJson()
+    private void ConvertCSVToJson()
     {
-        if (string.IsNullOrEmpty(excelPath))
-        {
-            EditorUtility.DisplayDialog("错误", "请选择Excel文件!", "确定");
-            return;
-        }
-
-        if (!File.Exists(excelPath))
-        {
-            EditorUtility.DisplayDialog("错误", "Excel文件不存在!", "确定");
-            return;
-        }
-
         try
         {
-            DataSet dataSet = ExcelReader.ReadExcel(excelPath);
-
             List<PlayerData> players = new List<PlayerData>();
             List<EnemyData> enemies = new List<EnemyData>();
             List<ItemData> items = new List<ItemData>();
@@ -106,14 +72,16 @@ public class ExcelTool : EditorWindow
             List<ShopItem> shopItems = new List<ShopItem>();
             List<WeaponData> weapons = new List<WeaponData>();
 
-            foreach (DataTable table in dataSet.Tables)
-            {
-                string sheetName = table.TableName;
+            string[] csvFiles = Directory.GetFiles(dataFolderPath, "*.csv");
 
-                if (MatchSheetName(sheetName, playerSheetName, "Player"))
+            foreach (string file in csvFiles)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(file).ToLower();
+
+                if (fileName.Contains("player"))
                 {
-                    List<Dictionary<string, string>> tableData = ExcelReader.GetTableData(dataSet, sheetName);
-                    foreach (var row in tableData)
+                    var data = CSVReader.ReadCSV(file);
+                    foreach (var row in data)
                     {
                         PlayerData player = new PlayerData();
                         if (row.ContainsKey("ID")) player.ID = row["ID"];
@@ -127,10 +95,10 @@ public class ExcelTool : EditorWindow
                     }
                 }
 
-                if (MatchSheetName(sheetName, enemySheetName, "Enemy"))
+                if (fileName.Contains("enemy"))
                 {
-                    List<Dictionary<string, string>> tableData = ExcelReader.GetTableData(dataSet, sheetName);
-                    foreach (var row in tableData)
+                    var data = CSVReader.ReadCSV(file);
+                    foreach (var row in data)
                     {
                         EnemyData enemy = new EnemyData();
                         if (row.ContainsKey("ID")) enemy.ID = row["ID"];
@@ -147,10 +115,10 @@ public class ExcelTool : EditorWindow
                     }
                 }
 
-                if (MatchSheetName(sheetName, itemSheetName, "Item"))
+                if (fileName.Contains("item"))
                 {
-                    List<Dictionary<string, string>> tableData = ExcelReader.GetTableData(dataSet, sheetName);
-                    foreach (var row in tableData)
+                    var data = CSVReader.ReadCSV(file);
+                    foreach (var row in data)
                     {
                         ItemData item = new ItemData();
                         if (row.ContainsKey("ID")) item.ID = row["ID"];
@@ -165,10 +133,10 @@ public class ExcelTool : EditorWindow
                     }
                 }
 
-                if (MatchSheetName(sheetName, questSheetName, "Quest"))
+                if (fileName.Contains("quest"))
                 {
-                    List<Dictionary<string, string>> tableData = ExcelReader.GetTableData(dataSet, sheetName);
-                    foreach (var row in tableData)
+                    var data = CSVReader.ReadCSV(file);
+                    foreach (var row in data)
                     {
                         QuestData quest = new QuestData();
                         if (row.ContainsKey("ID")) quest.ID = row["ID"];
@@ -188,10 +156,10 @@ public class ExcelTool : EditorWindow
                     }
                 }
 
-                if (MatchSheetName(sheetName, npcSheetName, "NPC"))
+                if (fileName.Contains("npc"))
                 {
-                    List<Dictionary<string, string>> tableData = ExcelReader.GetTableData(dataSet, sheetName);
-                    foreach (var row in tableData)
+                    var data = CSVReader.ReadCSV(file);
+                    foreach (var row in data)
                     {
                         NPCData npc = new NPCData();
                         if (row.ContainsKey("ID")) npc.ID = row["ID"];
@@ -205,10 +173,10 @@ public class ExcelTool : EditorWindow
                     }
                 }
 
-                if (MatchSheetName(sheetName, shopSheetName, "Shop"))
+                if (fileName.Contains("shop") && !fileName.Contains("shopitem"))
                 {
-                    List<Dictionary<string, string>> tableData = ExcelReader.GetTableData(dataSet, sheetName);
-                    foreach (var row in tableData)
+                    var data = CSVReader.ReadCSV(file);
+                    foreach (var row in data)
                     {
                         ShopData shop = new ShopData();
                         if (row.ContainsKey("ID")) shop.ID = row["ID"];
@@ -217,25 +185,28 @@ public class ExcelTool : EditorWindow
                     }
                 }
 
-                if (MatchSheetName(sheetName, shopItemSheetName, "ShopItem"))
+                if (fileName.Contains("shopitem"))
                 {
-                    List<Dictionary<string, string>> tableData = ExcelReader.GetTableData(dataSet, sheetName);
-                    foreach (var row in tableData)
+                    var data = CSVReader.ReadCSV(file);
+                    foreach (var row in data)
                     {
                         ShopItem shopItem = new ShopItem();
                         if (row.ContainsKey("ShopID")) shopItem.ShopID = row["ShopID"];
                         if (row.ContainsKey("ItemID")) shopItem.ItemID = row["ItemID"];
                         if (row.ContainsKey("Price")) int.TryParse(row["Price"], out shopItem.Price);
                         if (row.ContainsKey("Stock")) int.TryParse(row["Stock"], out shopItem.Stock);
-                        if (row.ContainsKey("IsUnlimited")) bool.TryParse(row["IsUnlimited"], out shopItem.IsUnlimited);
+                        if (row.ContainsKey("IsUnlimited"))
+                        {
+                            bool.TryParse(row["IsUnlimited"], out shopItem.IsUnlimited);
+                        }
                         shopItems.Add(shopItem);
                     }
                 }
 
-                if (MatchSheetName(sheetName, weaponSheetName, "Weapon"))
+                if (fileName.Contains("weapon"))
                 {
-                    List<Dictionary<string, string>> tableData = ExcelReader.GetTableData(dataSet, sheetName);
-                    foreach (var row in tableData)
+                    var data = CSVReader.ReadCSV(file);
+                    foreach (var row in data)
                     {
                         WeaponData weapon = new WeaponData();
                         if (row.ContainsKey("ID")) weapon.ID = row["ID"];
@@ -294,22 +265,13 @@ public class ExcelTool : EditorWindow
             File.WriteAllText(outputFile, json);
 
             EditorUtility.DisplayDialog("成功", $"数据已导出到:\n{outputFile}", "确定");
-            Debug.Log($"Excel数据已转换为JSON: {outputFile}");
+            Debug.Log($"CSV数据已转换为JSON: {outputFile}");
         }
         catch (System.Exception e)
         {
             EditorUtility.DisplayDialog("错误", $"转换失败: {e.Message}", "确定");
-            Debug.LogError($"Excel转换错误: {e}");
+            Debug.LogError($"CSV转换错误: {e}");
         }
-    }
-
-    private bool MatchSheetName(string sheetName, string configName, string defaultName)
-    {
-        if (!string.IsNullOrEmpty(configName) && sheetName == configName)
-            return true;
-        if (string.IsNullOrEmpty(configName) && sheetName.Contains(defaultName))
-            return true;
-        return false;
     }
 
     private string[] SplitToArray(string str)
