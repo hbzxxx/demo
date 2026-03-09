@@ -11,6 +11,7 @@ public class ShopData
 [Serializable]
 public class ShopItem
 {
+    public string ShopID;
     public string ItemID;
     public int Price;
     public int Stock;

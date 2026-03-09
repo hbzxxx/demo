@@ -156,7 +156,8 @@ public class ExcelTool : EditorWindow
                         if (row.ContainsKey("ID")) item.ID = row["ID"];
                         if (row.ContainsKey("Name")) item.Name = row["Name"];
                         if (row.ContainsKey("Description")) item.Description = row["Description"];
-                        if (row.ContainsKey("Type")) int.TryParse(row["Type"], out int type);
+                        int type = 0;
+                        if (row.ContainsKey("Type")) int.TryParse(row["Type"], out type);
                         item.Type = (ItemType)type;
                         if (row.ContainsKey("Price")) int.TryParse(row["Price"], out item.Price);
                         if (row.ContainsKey("MaxStack")) int.TryParse(row["MaxStack"], out item.MaxStack);
@@ -173,7 +174,8 @@ public class ExcelTool : EditorWindow
                         if (row.ContainsKey("ID")) quest.ID = row["ID"];
                         if (row.ContainsKey("Title")) quest.Title = row["Title"];
                         if (row.ContainsKey("Description")) quest.Description = row["Description"];
-                        if (row.ContainsKey("Type")) int.TryParse(row["Type"], out int qtype);
+                        int qtype = 0;
+                        if (row.ContainsKey("Type")) int.TryParse(row["Type"], out qtype);
                         quest.Type = (QuestType)qtype;
                         quest.State = QuestState.Available;
                         if (row.ContainsKey("TargetID")) quest.TargetID = row["TargetID"];
