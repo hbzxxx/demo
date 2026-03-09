@@ -1,0 +1,5 @@
+ID,Title,Description,Type,TargetID,TargetCount,RewardGold,RewardItems,PreQuestIDs,NPCID
+Q001,讨伐史莱姆,击败5只史莱姆,0,E001,5,100,I002,,N001
+Q002,收集材料,收集10个史莱姆凝胶,1,I004,10,50,,Q001,N001
+Q003,击败哥布林,击败3只哥布林,0,E002,3,150,I003,I001,N002
+Q004,铁矿石收集,收集20块铁矿石,1,I009,20,80,,,N002
