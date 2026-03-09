@@ -1,0 +1,4 @@
+ID,Name,MaxHealth,MoveSpeed,AttackDamage,AttackSpeed,Defense
+P001,Knight,120,5,25,1.2,10
+P002,Archer,80,6,20,2.0,5
+P003,Mage,60,4,35,0.8,3
