@@ -20,7 +20,7 @@ public class PlayerHealth : MonoBehaviour
             CurrentHealth = 0;
         }
         
-        EventCenter.Broadcast<float>(EventType.PLAYER_HEALTH_CHANGED, CurrentHealthRatio);
+        EventCenter.TriggerEvent<float>(EventType.PLAYER_HEALTH_CHANGED, CurrentHealthRatio);
         
         if (CurrentHealth <= 0)
         {
@@ -36,12 +36,12 @@ public class PlayerHealth : MonoBehaviour
             CurrentHealth = MaxHealth;
         }
         
-        EventCenter.Broadcast<float>(EventType.PLAYER_HEALTH_CHANGED, CurrentHealthRatio);
+        EventCenter.TriggerEvent<float>(EventType.PLAYER_HEALTH_CHANGED, CurrentHealthRatio);
     }
 
     private void Die()
     {
         Debug.Log("玩家死亡！");
-        EventCenter.Broadcast(EventType.PLAYER_DIED);
+        EventCenter.TriggerEvent(EventType.PLAYER_DIED);
     }
 }

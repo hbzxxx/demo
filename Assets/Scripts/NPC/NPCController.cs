@@ -39,11 +39,11 @@ public class NPCController : MonoBehaviour
 
             if (availableQuests.Count > 0)
             {
-                EventCenter.Broadcast<string, List<QuestData>>(EventType.NPC_QUEST_DIALOG, Data.Name, availableQuests);
+                EventCenter.TriggerEvent<string, List<QuestData>>(EventType.NPC_QUEST_DIALOG, Data.Name, availableQuests);
                 return;
             }
         }
 
-        EventCenter.Broadcast<string, string>(EventType.NPC_DIALOG, Data.Name, Data.DialogLines);
+        EventCenter.TriggerEvent<string, string>(EventType.NPC_DIALOG, Data.Name, Data.DialogLines);
     }
 }

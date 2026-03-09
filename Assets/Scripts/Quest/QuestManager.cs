@@ -42,7 +42,7 @@ public class QuestManager : MonoBehaviour
                 quest.State = QuestState.Accepted;
                 quest.CurrentCount = 0;
                 acceptedQuests.Add(quest);
-                EventCenter.Broadcast<QuestData>(EventType.QUEST_ACCEPTED, quest);
+                EventCenter.TriggerEvent<QuestData>(EventType.QUEST_ACCEPTED, quest);
                 Debug.Log($"接受任务: {quest.Title}");
             }
         }
@@ -55,12 +55,12 @@ public class QuestManager : MonoBehaviour
             if (quest.TargetID == targetID && quest.State == QuestState.Accepted)
             {
                 quest.CurrentCount += count;
-                EventCenter.Broadcast<QuestData>(EventType.QUEST_PROGRESS_UPDATED, quest);
+                EventCenter.TriggerEvent<QuestData>(EventType.QUEST_PROGRESS_UPDATED, quest);
 
                 if (quest.CurrentCount >= quest.TargetCount)
                 {
                     quest.State = QuestState.Completed;
-                    EventCenter.Broadcast<QuestData>(EventType.QUEST_COMPLETED, quest);
+                    EventCenter.TriggerEvent<QuestData>(EventType.QUEST_COMPLETED, quest);
                 }
             }
         }
@@ -85,7 +85,7 @@ public class QuestManager : MonoBehaviour
                     }
                 }
 
-                EventCenter.Broadcast<QuestData>(EventType.QUEST_FINISHED, quest);
+                EventCenter.TriggerEvent<QuestData>(EventType.QUEST_FINISHED, quest);
                 CheckAvailableQuests();
                 Debug.Log($"完成任务: {quest.Title}, 奖励: {quest.RewardGold}金币");
             }

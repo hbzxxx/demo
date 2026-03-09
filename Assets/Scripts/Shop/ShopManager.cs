@@ -28,7 +28,7 @@ public class ShopManager : MonoBehaviour
         if (shopDataDict.TryGetValue(shopID, out ShopData shop))
         {
             currentShop = shop;
-            EventCenter.Broadcast<ShopData>(EventType.SHOP_OPENED, shop);
+            EventCenter.TriggerEvent<ShopData>(EventType.SHOP_OPENED, shop);
             Debug.Log($"打开商店: {shop.Name}");
         }
     }
@@ -72,7 +72,7 @@ public class ShopManager : MonoBehaviour
             shopItem.Stock--;
         }
 
-        EventCenter.Broadcast<string>(EventType.ITEM_PURCHASED, itemID);
+        EventCenter.TriggerEvent<string>(EventType.ITEM_PURCHASED, itemID);
         Debug.Log($"购买物品: {itemID}, 价格: {shopItem.Price}");
         return true;
     }

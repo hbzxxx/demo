@@ -33,7 +33,7 @@ public class InventoryManager : MonoBehaviour
     public void AddGold(int amount)
     {
         CurrentGold += amount;
-        EventCenter.Broadcast<int>(EventType.GOLD_CHANGED, CurrentGold);
+        EventCenter.TriggerEvent<int>(EventType.GOLD_CHANGED, CurrentGold);
     }
 
     public bool SpendGold(int amount)
@@ -41,7 +41,7 @@ public class InventoryManager : MonoBehaviour
         if (CurrentGold >= amount)
         {
             CurrentGold -= amount;
-            EventCenter.Broadcast<int>(EventType.GOLD_CHANGED, CurrentGold);
+            EventCenter.TriggerEvent<int>(EventType.GOLD_CHANGED, CurrentGold);
             return true;
         }
         return false;
@@ -67,7 +67,7 @@ public class InventoryManager : MonoBehaviour
                     count -= toAdd;
                     if (count <= 0)
                     {
-                        EventCenter.Broadcast(EventType.INVENTORY_UPDATED);
+                        EventCenter.TriggerEvent(EventType.INVENTORY_UPDATED);
                         return true;
                     }
                 }
@@ -79,7 +79,7 @@ public class InventoryManager : MonoBehaviour
             if (slots[i].IsEmpty)
             {
                 slots[i] = new InventorySlot(itemID, count, data);
-                EventCenter.Broadcast(EventType.INVENTORY_UPDATED);
+                EventCenter.TriggerEvent(EventType.INVENTORY_UPDATED);
                 return true;
             }
         }
@@ -101,7 +101,7 @@ public class InventoryManager : MonoBehaviour
                     {
                         slots[i] = new InventorySlot();
                     }
-                    EventCenter.Broadcast(EventType.INVENTORY_UPDATED);
+                    EventCenter.TriggerEvent(EventType.INVENTORY_UPDATED);
                     return true;
                 }
                 else
