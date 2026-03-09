@@ -1,6 +1,6 @@
-# 游戏数据配置与系统使用文档
+# 游戏数据配置系统使用文档
 
-本文档介绍如何使用本项目的Excel数据配置系统和各个游戏功能模块。
+本文档详细介绍如何使用本项目的Excel数据配置系统和各个游戏功能模块。
 
 ---
 
@@ -17,133 +17,239 @@
 
 ## 1. Excel数据配置工具
 
-### 1.1 打开工具
+### 1.1 工具位置
 
-在Unity编辑器中，点击菜单: `Tools > Excel转JSON工具`
+在Unity编辑器中，点击菜单: `Tools` > `Excel转JSON工具`
 
 ### 1.2 使用流程
 
-1. 点击"选择Excel文件"按钮，选择`.xlsx`格式的Excel文件
-2. 根据需要修改工作表名称（留空则自动匹配包含关键字的表）
-3. 点击"转换Excel为JSON"按钮
-4. 生成的文件保存在 `Assets/Resources/Data/GameData.json`
+1. **准备Excel文件**
+   - 创建一个`.xlsx`格式的Excel文件
+   - 每个数据类型占用一个工作表
 
-### 1.3 依赖库
+2. **配置工作表名称**
+   - 在工具界面中设置各个工作表的名称
+   - 也可以留空，程序会自动匹配包含关键字的工作表
 
-Excel读取需要`Excel.dll`和`System.Data.dll`。Unity中可通过NuGet安装`ExcelDataReader`包。
+3. **转换数据**
+   - 点击"选择Excel文件"按钮，选择准备好的Excel文件
+   - 点击"转换Excel为JSON"按钮
+   - 生成的文件保存在 `Assets/Resources/Data/GameData.json`
+
+### 1.3 注意事项
+
+- Excel文件必须是`.xlsx`格式（旧版`.xls`格式不支持）
+- 第一行必须为字段名称
+- 第二行开始为数据
 
 ---
 
 ## 2. Excel表格模板说明
 
-### 2.1 Player (玩家数据)
+### 2.1 Player（玩家数据）
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| ID | string | 唯一标识符 |
-| Name | string | 玩家名称 |
-| MaxHealth | float | 最大生命值 |
-| MoveSpeed | float | 移动速度 |
-| AttackDamage | float | 攻击力 |
-| AttackSpeed | float | 攻击速度 |
-| Defense | float | 防御力 |
+用于配置玩家的基本属性。
 
-### 2.2 Enemy (敌人数据)
+| 字段 | 类型 | 说明 | 示例 |
+|------|------|------|------|
+| ID | string | 唯一标识符，不可重复 | P001 |
+| Name | string | 玩家名称 | Knight |
+| MaxHealth | float | 最大生命值 | 120 |
+| MoveSpeed | float | 移动速度 | 5 |
+| AttackDamage | float | 攻击力 | 25 |
+| AttackSpeed | float | 攻击速度（越大越快） | 1.2 |
+| Defense | float | 防御力 | 10 |
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| ID | string | 唯一标识符 |
-| Name | string | 敌人名称 |
-| MaxHealth | float | 最大生命值 |
-| MoveSpeed | float | 普通移动速度 |
-| ChaseSpeed | float | 追击速度 |
-| DetectionRadius | float | 感知玩家范围 |
-| AttackRange | float | 攻击范围 |
-| Damage | int | 伤害值 |
-| AttackCooldown | float | 攻击冷却时间 |
-| PatrolWaitTime | float | 巡逻等待时间 |
+**示例数据：**
+```
+ID      Name     MaxHealth  MoveSpeed  AttackDamage  AttackSpeed  Defense
+P001    Knight   120        5          25            1.2          10
+P002    Archer   80         6          20            2.0          5
+P003    Mage     60         4          35            0.8          3
+```
 
-### 2.3 Item (物品数据)
+### 2.2 Enemy（敌人数据）
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| ID | string | 唯一标识符 |
-| Name | string | 物品名称 |
-| Description | string | 物品描述 |
-| Type | int | 物品类型(0=Weapon, 1=Armor, 2=Consumable, 3=Material, 4=Quest) |
-| Price | int | 售价 |
-| MaxStack | int | 最大堆叠数量 |
-| Value | int | 物品价值/效果值 |
+用于配置敌人的属性和行为参数。
 
-### 2.4 Quest (任务数据)
+| 字段 | 类型 | 说明 | 示例 |
+|------|------|------|------|
+| ID | string | 唯一标识符 | E001 |
+| Name | 敌人名称 | Slime |
+| MaxHealth | float | 最大生命值 | 30 |
+| MoveSpeed | float | 巡逻移动速度 | 2 |
+| ChaseSpeed | float | 追击玩家速度 | 3 |
+| DetectionRadius | float | 感知玩家范围（像素） | 4 |
+| AttackRange | float | 攻击范围 | 1 |
+| Damage | int | 每次攻击伤害 | 5 |
+| AttackCooldown | float | 攻击冷却时间（秒） | 2 |
+| PatrolWaitTime | float | 巡逻等待时间（秒） | 2 |
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| ID | string | 唯一标识符 |
-| Title | string | 任务标题 |
-| Description | string | 任务描述 |
-| Type | int | 任务类型(0=Kill, 1=Collect, 2=Talk, 3=Reach) |
-| TargetID | string | 目标ID(敌人ID或物品ID) |
-| TargetCount | int | 目标数量 |
-| RewardGold | int | 金币奖励 |
-| RewardItems | string | 奖励物品ID(多个用逗号分隔) |
-| PreQuestIDs | string | 前置任务ID(多个用逗号分隔) |
-| NPCID | string | 关联NPC的ID |
+**示例数据：**
+```
+ID      Name    MaxHealth  MoveSpeed  ChaseSpeed  DetectionRadius  AttackRange  Damage  AttackCooldown  PatrolWaitTime
+E001    Slime   30         2          3           4                1            5       2               2
+E002    Goblin  50         3          4           5                1.5          10      1.5             1.5
+E003    Orc     100        2          3.5         6                2            20      3               2
+```
 
-### 2.5 NPC (NPC数据)
+### 2.3 Item（物品数据）
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| ID | string | 唯一标识符 |
-| Name | string | NPC名称 |
-| Title | string | NPC称号 |
-| Description | string | NPC描述 |
-| QuestIDs | string | 关联任务ID(多个用逗号分隔) |
-| ShopID | string | 关联商店ID(无商店则留空) |
-| DialogLines | string | 对话内容 |
+用于配置游戏中可使用的物品。
 
-### 2.6 Shop (商店数据)
+| 字段 | 类型 | 说明 | 示例 |
+|------|------|------|------|
+| ID | string | 唯一标识符 | I001 |
+| Name | string | 物品名称 | 生命药水 |
+| Description | string | 物品描述 | 恢复50点生命值 |
+| Type | int | 物品类型 | 详见下方类型说明 |
+| Price | int | 售价（金币） | 50 |
+| MaxStack | int | 最大堆叠数量 | 99 |
+| Value | int | 物品效果值 | 50 |
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| ID | string | 唯一标识符 |
-| Name | string | 商店名称 |
+**Type类型说明：**
+- 0 = Weapon（武器）
+- 1 = Armor（防具）
+- 2 = Consumable（消耗品）
+- 3 = Material（材料）
+- 4 = Quest（任务物品）
 
-### 2.7 ShopItem (商店物品)
+**示例数据：**
+```
+ID   Name       Description         Type  Price  MaxStack  Value
+I001 生命药水   恢复50点生命值      2     50     99        50
+I002 铁剑       基础武器伤害+10     0     100    1         10
+I003 皮甲       基础防具防御+5      1     80     1         5
+I004 史莱姆凝胶 任务材料            3     5      99        0
+```
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| ShopID | string | 所属商店ID |
-| ItemID | string | 物品ID |
-| Price | int | 售价 |
-| Stock | int | 库存数量 |
-| IsUnlimited | bool | 是否无限库存(True/False) |
+### 2.4 Quest（任务数据）
 
-### 2.8 Weapon (武器数据)
+用于配置游戏中的任务。
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| ID | string | 唯一标识符 |
-| Name | string | 武器名称 |
-| FireRate | float | 射击间隔(秒) |
-| ReloadTime | float | 换弹时间(秒) |
-| ClipSize | int | 弹夹容量 |
-| MaxReserveAmmo | int | 备用弹药上限 |
-| BulletName | string | 子弹名称 |
-| BulletSpeed | float | 子弹速度 |
-| BulletTime | float | 子弹存在时间 |
-| Damage | float | 伤害值 |
-| MuzzleEffectsDisappear | float | 枪口特效消失时间 |
-| BulletPerFire | int | 每次射击子弹数 |
-| SpreadAngle | float | 散射角度 |
+| 字段 | 类型 | 说明 | 示例 |
+|------|------|------|------|
+| ID | string | 唯一标识符 | Q001 |
+| Title | string | 任务标题 | 讨伐史莱姆 |
+| Description | string | 任务描述 | 击败5只史莱姆 |
+| Type | int | 任务类型 | 详见下方 |
+| TargetID | string | 目标ID | E001 |
+| TargetCount | int | 目标数量 | 5 |
+| RewardGold | int | 金币奖励 | 100 |
+| RewardItems | string | 物品奖励ID（多个用逗号分隔） | I002 |
+| PreQuestIDs | string | 前置任务ID（多个用逗号分隔） | Q001 |
+| NPCID | string | 关联NPC的ID | N001 |
+
+**Type类型说明：**
+- 0 = Kill（击杀敌人）
+- 1 = Collect（收集物品）
+- 2 = Talk（对话任务）
+- 3 = Reach（到达指定地点）
+
+**示例数据：**
+```
+ID    Title      Description       Type  TargetID  TargetCount  RewardGold  RewardItems  PreQuestIDs  NPCID
+Q001  讨伐史莱姆  击败5只史莱姆     0     E001      5            100         I002                     N001
+Q002  收集材料   收集10个史莱姆凝胶 1     I004      10           50                                   N001
+```
+
+### 2.5 NPC（NPC数据）
+
+用于配置游戏中的非玩家角色。
+
+| 字段 | 类型 | 说明 | 示例 |
+|------|------|------|------|
+| ID | string | 唯一标识符 | N001 |
+| Name | string | NPC名称 | 村长 |
+| Title | string | NPC称号 | 村长 |
+| Description | string | NPC描述 | 村庄的村长 |
+| QuestIDs | string | 关联任务ID（多个用逗号分隔） | Q001,Q002 |
+| ShopID | string | 关联商店ID（无商店留空） | S001 |
+| DialogLines | string | 对话内容 | 欢迎来到村庄！ |
+
+**示例数据：**
+```
+ID   Name   Title  Description                   QuestIDs    ShopID  DialogLines
+N001 村长   村长   村庄的村长有重要任务委托      Q001;Q002           欢迎来到小村庄！
+N002 商人   杂货商 出售各种道具和装备                      S001    看看我的商品吧！
+```
+
+### 2.6 Shop（商店数据）
+
+用于配置商店基本信息。
+
+| 字段 | 类型 | 说明 | 示例 |
+|------|------|------|------|
+| ID | string | 唯一标识符 | S001 |
+| Name | string | 商店名称 | 杂货店 |
+
+### 2.7 ShopItem（商店物品）
+
+用于配置商店中出售的物品。
+
+| 字段 | 类型 | 说明 | 示例 |
+|------|------|------|------|
+| ShopID | string | 所属商店ID | S001 |
+| ItemID | string | 物品ID | I001 |
+| Price | int | 售价 | 50 |
+| Stock | int | 库存数量（-1或留空表示无限） | 99 |
+| IsUnlimited | bool | 是否无限库存 | True |
+
+**示例数据：**
+```
+ShopID  ItemID  Price  Stock  IsUnlimited
+S001    I001    50     99     True
+S001    I002    100    5      False
+```
+
+### 2.8 Weapon（武器数据）
+
+用于配置武器的属性。
+
+| 字段 | 类型 | 说明 | 示例 |
+|------|------|------|------|
+| ID | string | 唯一标识符 | W001 |
+| Name | string | 武器名称 | 手枪 |
+| FireRate | float | 射击间隔（秒） | 0.2 |
+| ReloadTime | float | 换弹时间（秒） | 1.5 |
+| ClipSize | int | 弹夹容量 | 12 |
+| MaxReserveAmmo | int | 备用弹药上限 | 60 |
+| BulletName | string | 子弹名称 | Bullet |
+| BulletSpeed | float | 子弹速度 | 20 |
+| BulletTime | float | 子弹存在时间（秒） | 2 |
+| Damage | float | 伤害值 | 10 |
+| MuzzleEffectsDisappear | float | 枪口特效消失时间 | 0.1 |
+| BulletPerFire | int | 每次射击子弹数 | 1 |
+| SpreadAngle | float | 散射角度 | 5 |
+
+**示例数据：**
+```
+ID   Name   FireRate  ReloadTime  ClipSize  MaxReserveAmmo  BulletName  BulletSpeed  BulletTime  Damage  MuzzleEffectsDisappear  BulletPerFire  SpreadAngle
+W001 手枪   0.2       1.5         12        60              Bullet      20           2           10      0.1                     1              5
+W002 步枪   0.1       2           30        120             Bullet      30           3           15      0.1                     1              3
+W003 霰弹枪 1         3           6         24              ShotgunBullet 15         1         25      0.15                    5              15
+```
 
 ---
 
 ## 3. 数据加载与使用
 
-### 3.1 自动加载
+### 3.1 数据加载器
 
 在场景中创建一个空物体，添加`GameDataLoader`组件。游戏启动时会自动加载`Resources/Data/GameData.json`。
+
+```csharp
+// GameDataLoader会自动完成以下加载:
+// - 玩家数据 -> DataManager
+// - 敌人数据 -> DataManager
+// - 物品数据 -> InventoryManager
+// - 任务数据 -> QuestManager
+// - NPC数据 -> NPCManager
+// - 商店数据 -> ShopManager
+// - 武器数据 -> WeaponManager
+```
+
+### 3.2 数据获取方式
 
 ```csharp
 // 获取玩家数据
@@ -159,32 +265,36 @@ ItemData item = InventoryManager.Instance.GetItemData("I001");
 WeaponData weapon = WeaponManager.Instance.GetWeaponData("W001");
 ```
 
-### 3.2 数据结构
+### 3.3 数据结构
 
 ```csharp
 // 玩家数据
-public class PlayerData {
-    public string ID;
-    public string Name;
-    public float MaxHealth;
-    public float MoveSpeed;
-    public float AttackDamage;
-    public float AttackSpeed;
-    public float Defense;
+[Serializable]
+public class PlayerData
+{
+    public string ID;           // 唯一标识符
+    public string Name;         // 玩家名称
+    public float MaxHealth;     // 最大生命值
+    public float MoveSpeed;     // 移动速度
+    public float AttackDamage;  // 攻击力
+    public float AttackSpeed;  // 攻击速度
+    public float Defense;       // 防御力
 }
 
 // 敌人数据
-public class EnemyData {
-    public string ID;
-    public string Name;
-    public float MaxHealth;
-    public float MoveSpeed;
-    public float ChaseSpeed;
-    public float DetectionRadius;
-    public float AttackRange;
-    public int Damage;
-    public float AttackCooldown;
-    public float PatrolWaitTime;
+[Serializable]
+public class EnemyData
+{
+    public string ID;               // 唯一标识符
+    public string Name;             // 敌人名称
+    public float MaxHealth;         // 最大生命值
+    public float MoveSpeed;         // 巡逻速度
+    public float ChaseSpeed;        // 追击速度
+    public float DetectionRadius;   // 感知范围
+    public float AttackRange;       // 攻击范围
+    public int Damage;              // 伤害值
+    public float AttackCooldown;    // 攻击冷却
+    public float PatrolWaitTime;    // 巡逻等待时间
 }
 ```
 
@@ -192,17 +302,19 @@ public class EnemyData {
 
 ## 4. 游戏系统使用指南
 
-### 4.1 玩家血量系统
+### 4.1 玩家生命值系统
 
-#### 添加血量组件
+#### 4.1.1 组件添加
 
-在玩家GameObject上添加`PlayerHealth`组件:
+在玩家GameObject上添加`PlayerHealth`组件，并设置`PlayerDataID`属性。
+
+#### 4.1.2 代码使用
 
 ```csharp
 // 获取血量
 float health = playerHealth.CurrentHealth;
 float maxHealth = playerHealth.MaxHealth;
-float healthRatio = playerHealth.CurrentHealthRatio; // 0-1
+float healthRatio = playerHealth.CurrentHealthRatio;
 
 // 造成伤害
 playerHealth.TakeDamage(10f);
@@ -211,7 +323,7 @@ playerHealth.TakeDamage(10f);
 playerHealth.Heal(50f);
 ```
 
-#### 血量UI显示
+#### 4.1.3 UI显示
 
 1. 创建UI Canvas
 2. 添加Slider组件作为血条
@@ -220,46 +332,45 @@ playerHealth.Heal(50f);
 ```csharp
 public class HealthUI : MonoBehaviour
 {
-    public Slider HealthSlider;
-    public Image FillImage;
-    public Color FullHealthColor = Color.green;
-    public Color LowHealthColor = Color.red;
+    public Slider HealthSlider;           // 血条Slider组件
+    public Image FillImage;              // 填充图片（用于颜色变化）
+    public Color FullHealthColor = Color.green;   // 满血颜色
+    public Color LowHealthColor = Color.red;      // 低血量颜色
 }
 ```
 
 ### 4.2 敌人AI系统
 
-#### 创建敌人
+#### 4.2.1 组件添加
 
 1. 创建敌人GameObject
-2. 添加组件:
-   - `Rigidbody2D` (设置Body Type为Kinematic)
+2. 添加组件：
+   - `Rigidbody2D`（设置Body Type为Kinematic）
    - `BoxCollider2D`
    - `EnemyController`
-3. 设置Visual子对象和Animator
+3. 设置`Visual`子对象和`Animator`
 
-#### EnemyController配置
+#### 4.2.2 配置参数
+
+在Inspector中设置`EnemyDataID`，系统会自动从表格加载所有属性。
 
 | 参数 | 说明 |
 |------|------|
-| MoveSpeed | 巡逻移动速度 |
-| ChaseSpeed | 追击速度 |
-| DetectionRadius | 感知玩家范围 |
-| AttackRange | 攻击范围 |
-| PatrolPoints | 巡逻点(Transform数组) |
-| AttackCooldown | 攻击冷却时间 |
-| Damage | 伤害值 |
+| EnemyDataID | 敌人数据ID（对应Excel中的ID列） |
+| PatrolPoints | 巡逻点数组（可选） |
 
-#### 状态说明
+#### 4.2.3 状态说明
 
-- **Idle**: 待机状态，等待一段时间后进入巡逻
-- **Patrol**: 巡逻状态，前往巡逻点
-- **Chase**: 追击状态，发现玩家后追击
-- **Attack**: 攻击状态，进入攻击范围后攻击
+敌人AI包含以下状态：
+
+- **Idle（待机）**: 原地等待一段时间后进入巡逻
+- **Patrol（巡逻）**: 按照设定路径移动巡逻
+- **Chase（追击）**: 发现玩家后追击
+- **Attack（攻击）**: 进入攻击范围后进行攻击
 
 ### 4.3 任务系统
 
-#### 接受任务
+#### 4.3.1 接受任务
 
 ```csharp
 // 接受任务
@@ -272,7 +383,7 @@ List<QuestData> availableQuests = QuestManager.Instance.GetAvailableQuests();
 List<QuestData> acceptedQuests = QuestManager.Instance.GetAcceptedQuests();
 ```
 
-#### 更新任务进度
+#### 4.3.2 更新任务进度
 
 ```csharp
 // 击杀敌人时调用
@@ -282,37 +393,33 @@ QuestManager.Instance.UpdateQuestProgress("E001", 1);
 QuestManager.Instance.UpdateQuestProgress("I004", 1);
 ```
 
-#### 完成任务
+#### 4.3.3 完成任务
 
 ```csharp
 // 交付任务
 QuestManager.Instance.CompleteQuest("Q001");
 
-// 任务完成后自动发放奖励(金币和物品)
+// 任务完成后自动发放奖励（金币和物品）
 ```
 
 ### 4.4 NPC系统
 
-#### 创建NPC
+#### 4.4.1 创建NPC
 
 1. 创建NPC GameObject
 2. 添加`NPCController`组件
-3. 设置`NPCID`属性
+3. 设置`NPCID`属性（对应Excel中的ID）
 
-#### 与NPC交互
+#### 4.4.2 交互方式
 
-NPC通过点击触发交互:
-
-```csharp
-// NPCController会自动处理:
-// 1. 显示对话
-// 2. 显示任务列表
-// 3. 打开商店(如果有ShopID)
-```
+NPC通过点击触发交互，自动处理：
+- 显示对话
+- 显示任务列表
+- 打开商店（如有设置ShopID）
 
 ### 4.5 背包系统
 
-#### 基本操作
+#### 4.5.1 基本操作
 
 ```csharp
 // 添加物品
@@ -327,155 +434,145 @@ int count = InventoryManager.Instance.GetItemCount("I001");
 // 添加金币
 InventoryManager.Instance.AddGold(100);
 
-// 消费金币
+// 消费金币（会检查金币是否足够）
 bool success = InventoryManager.Instance.SpendGold(50);
 
 // 获取背包槽位
 List<InventorySlot> slots = InventoryManager.Instance.GetAllSlots();
 ```
 
-#### 背包配置
+#### 4.5.2 配置参数
 
 | 参数 | 说明 |
 |------|------|
-| MaxSlots | 背包最大槽位 |
+| MaxSlots | 背包最大槽位数量 |
 | CurrentGold | 当前金币数量 |
 
 ### 4.6 商店系统
 
-#### 打开商店
+#### 4.6.1 打开商店
 
 ```csharp
-// 通过商店ID打开
+// 通过商店ID打开商店
 ShopManager.Instance.OpenShop("S001");
 
 // 购买物品
 bool success = ShopManager.Instance.BuyItem("I001");
 ```
 
-#### 商店数据结构
-
-```csharp
-public class ShopData {
-    public string ID;
-    public string Name;
-    public ShopItem[] Items;
-}
-
-public class ShopItem {
-    public string ItemID;
-    public int Price;
-    public int Stock;
-    public bool IsUnlimited;
-}
-```
-
 ### 4.7 武器系统
 
-#### 获取武器数据
-
 ```csharp
+// 获取武器数据
 WeaponData weapon = WeaponManager.Instance.GetWeaponData("W001");
 
 // 使用数据
-float fireRate = weapon.FireRate;
-int clipSize = weapon.ClipSize;
-float damage = weapon.Damage;
+float fireRate = weapon.FireRate;        // 射击间隔
+int clipSize = weapon.ClipSize;          // 弹夹容量
+float damage = weapon.Damage;             // 伤害值
 ```
 
 ---
 
 ## 5. 事件系统
 
-项目使用事件中心进行模块间通信。
+### 5.1 事件类型列表
 
-### 5.1 事件类型
-
-```csharp
-public enum EventType
-{
-    PLAY_RELOAD_ANIMATION,
-    NO_PLAY_RELOAD_ANIMATION,
-    PLAYER_HEALTH_CHANGED,      // 参数: float (血量比例 0-1)
-    PLAYER_DIED,
-    QUEST_ACCEPTED,             // 参数: QuestData
-    QUEST_PROGRESS_UPDATED,     // 参数: QuestData
-    QUEST_COMPLETED,            // 参数: QuestData
-    QUEST_FINISHED,             // 参数: QuestData
-    NPC_DIALOG,                // 参数: string (标题), string (内容)
-    NPC_QUEST_DIALOG,
-    SHOP_OPENED,                // 参数: ShopData
-    ITEM_PURCHASED,            // 参数: string (物品ID)
-    INVENTORY_UPDATED,
-    GOLD_CHANGED,              // 参数: int (金币数量)
-}
-```
+| 事件名称 | 参数 | 说明 |
+|----------|------|------|
+| PLAYER_HEALTH_CHANGED | float (血量比例 0-1) | 玩家血量变化 |
+| PLAYER_DIED | 无 | 玩家死亡 |
+| QUEST_ACCEPTED | QuestData | 任务已接受 |
+| QUEST_PROGRESS_UPDATED | QuestData | 任务进度更新 |
+| QUEST_COMPLETED | QuestData | 任务已完成 |
+| QUEST_FINISHED | QuestData | 任务已交付 |
+| NPC_DIALOG | string (标题), string (内容) | NPC对话 |
+| SHOP_OPENED | ShopData | 商店已打开 |
+| ITEM_PURCHASED | string (物品ID) | 物品已购买 |
+| INVENTORY_UPDATED | 无 | 背包已更新 |
+| GOLD_CHANGED | int (金币数量) | 金币变化 |
 
 ### 5.2 监听事件
 
 ```csharp
-// 监听血量变化
-EventCenter.AddListener<float>(EventType.PLAYER_HEALTH_CHANGED, OnHealthChanged);
+// 在Start或Awake中添加监听
+private void OnEnable()
+{
+    // 监听血量变化
+    EventCenter.TriggerEvent<float>(EventType.PLAYER_HEALTH_CHANGED, OnHealthChanged);
+}
 
-void OnHealthChanged(float healthRatio)
+// 错误写法：
+// EventCenter.AddListener<float>(EventType.PLAYER_HEALTH_CHANGED, OnHealthChanged);
+
+// 正确写法 - 使用TriggerEvent：
+private void OnHealthChanged(float healthRatio)
 {
     Debug.Log($"血量变化: {healthRatio * 100}%");
 }
-
-// 监听背包更新
-EventCenter.AddListener(EventType.INVENTORY_UPDATED, OnInventoryUpdated);
-
-// 监听金币变化
-EventCenter.AddListener<int>(EventType.GOLD_CHANGED, OnGoldChanged);
 ```
 
 ### 5.3 发送事件
 
 ```csharp
 // 无参数
-EventCenter.Broadcast(EventType.INVENTORY_UPDATED);
+EventCenter.TriggerEvent(EventType.INVENTORY_UPDATED);
 
 // 有参数
-EventCenter.Broadcast<float>(EventType.PLAYER_HEALTH_CHANGED, 0.5f);
-EventCenter.Broadcast<string, string>(EventType.NPC_DIALOG, "村长", "欢迎来到村庄!");
+EventCenter.TriggerEvent<float>(EventType.PLAYER_HEALTH_CHANGED, 0.5f);
+EventCenter.TriggerEvent<string, string>(EventType.NPC_DIALOG, "村长", "欢迎!");
 ```
 
-### 5.4 移除监听
+### 5.4 EventCenter类说明
+
+EventCenter是项目的事件中心，使用`TriggerEvent`方法发送事件。
 
 ```csharp
-EventCenter.RemoveListener<float>(EventType.PLAYER_HEALTH_CHANGED, OnHealthChanged);
-EventCenter.RemoveListener(EventType.INVENTORY_UPDATED, OnInventoryUpdated);
+// 发送无参数事件
+EventCenter.TriggerEvent(EventType.事件类型);
+
+// 发送1个参数的事件
+EventCenter.TriggerEvent<T>(EventType.事件类型, 参数);
+
+// 发送2个参数的事件
+EventCenter.TriggerEvent<T1, T2>(EventType.事件类型, 参数1, 参数2);
 ```
 
 ---
 
 ## 6. Unity编辑器配置
 
-### 6.1 场景设置
+### 6.1 场景设置步骤
 
 1. **创建数据加载器**
-   - 创建空物体，添加`GameDataLoader`组件
+   - 创建空物体，命名为"GameManager"
+   - 添加`GameDataLoader`组件
 
 2. **创建UI管理器**
-   - 创建Canvas，添加`UIManager`组件
+   - 创建Canvas
+   - 添加`UIManager`组件
    - 配置任务、背包、商店面板
 
 3. **创建玩家**
    - 添加`PlayerController`组件
    - 添加`PlayerHealth`组件
+   - 设置`PlayerDataID`为"P001"
+   - 添加`Rigidbody2D`和`BoxCollider2D`
 
 4. **创建敌人**
    - 添加`EnemyController`组件
-   - 配置感知范围、攻击参数
+   - 设置`EnemyDataID`为"E001"
+   - 添加`Rigidbody2D`和`BoxCollider2D`
 
 5. **创建NPC**
    - 添加`NPCController`组件
-   - 设置NPCID
+   - 设置`NPCID`为对应的NPC ID
+   - 添加`BoxCollider2D`（勾选Is Trigger）
 
-### 6.2 预制体建议结构
+### 6.2 预制体结构
 
 ```
-Player
+Player (层级结构示例)
 ├── PlayerController (脚本)
 ├── PlayerHealth (脚本)
 ├── Rigidbody2D
@@ -485,19 +582,19 @@ Player
 └── Weapon
     └── WeaponController
 
-Enemy
+Enemy (层级结构示例)
 ├── EnemyController (脚本)
 ├── Rigidbody2D
 ├── BoxCollider2D
-└── Visual
+└── Visual (子对象)
     └── Animator
 
-NPC
+NPC (层级结构示例)
 ├── NPCController (脚本)
 ├── SpriteRenderer
-└── BoxCollider2D (IsTrigger = true)
+└── BoxCollider2D (Is Trigger = true)
 
-UI
+UI (层级结构示例)
 ├── Canvas
 ├── UIManager (脚本)
 ├── QuestPanel
@@ -506,42 +603,56 @@ UI
 └── DialogPanel
 ```
 
-### 6.3 常用快捷键(示例)
+### 6.3 常用快捷键绑定示例
 
 ```csharp
 void Update()
 {
-    // 打开背包
+    // 打开/关闭背包
     if (Input.GetKeyDown(KeyCode.B))
     {
         UIManager.Instance.ToggleInventoryPanel();
     }
     
-    // 打开任务
+    // 打开/关闭任务面板
     if (Input.GetKeyDown(KeyCode.Q))
     {
         UIManager.Instance.ToggleQuestPanel();
+    }
+    
+    // 打开/关闭商店
+    if (Input.GetKeyDown(KeyCode.K))
+    {
+        UIManager.Instance.ToggleShopPanel();
     }
 }
 ```
 
 ---
 
-## 附录: CSV模板文件
+## 附录：Excel文件示例
 
-项目中提供了以下CSV模板文件，位于 `Assets/Resources/Data/` 目录:
+### 创建一个完整的Excel文件
 
-- `PlayerTemplate.csv` - 玩家数据模板
-- `EnemyTemplate.csv` - 敌人数据模板
-- `ItemTemplate.csv` - 物品数据模板
-- `QuestTemplate.csv` - 任务数据模板
-- `NPCTemplate.csv` - NPC数据模板
-- `ShopTemplate.csv` - 商店数据模板
-- `ShopItemTemplate.csv` - 商店物品数据模板
-- `WeaponTemplate.csv` - 武器数据模板
+1. 新建Excel工作簿
+2. 创建以下工作表：
+   - Player（玩家数据）
+   - Enemy（敌人数据）
+   - Item（物品数据）
+   - Quest（任务数据）
+   - NPC（NPC数据）
+   - Shop（商店数据）
+   - ShopItem（商店物品）
+   - Weapon（武器数据）
 
-可以将这些模板导入Excel，然后填充实际数据后使用ExcelTool转换为JSON。
+3. 每个工作表第一行为字段名
+4. 从第二行开始填入数据
+
+5. 保存为`.xlsx`格式
+
+6. 使用`Tools > Excel转JSON工具`转换为JSON文件
 
 ---
 
-*本文档由MonkeyCode AI生成*
+*文档版本: 1.0*
+*最后更新: 2026*
