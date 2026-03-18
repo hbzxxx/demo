@@ -1,18 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerRuntimeData : MonoBehaviour
+[System.Serializable]
+public class PlayerRuntimeData
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [Header("当前生命值")]
+    public int curHealth;
+    [Header("最大生命值")]
+    public int maxHealth;
+    [Header("是否无敌")]
+    public bool isInvincible;
+    [Header("无敌结束时间")]
+    public float invincibilityEndTime;
+    [Header("是否死亡")]
+    public bool isDead;
 
-    // Update is called once per frame
-    void Update()
+    public void Init(PlayerData data)
     {
-        
+        maxHealth = data.maxHealth;
+        curHealth = data.curHealth;
+        isInvincible = false;
+        invincibilityEndTime = 0;
+        isDead = false;
     }
 }
