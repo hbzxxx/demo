@@ -15,8 +15,8 @@ MonoBehaviour:
   prefab: {fileID: 0}
   playerName: "\u6D4B\u8BD5\u73A9\u5BB6"
   moveSpeed: 1
-  maxHealth: 10
-  curHealth: 0
+  maxHealth: 100
+  curHealth: 100
   invincibilityTime: 2
   invincibility: 0
-  isDead: 1
+  isDead: 0

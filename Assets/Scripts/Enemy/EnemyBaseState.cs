@@ -7,7 +7,7 @@ public abstract class EnemyBaseState
     public EnemyBaseState(EnemyController controller, EnemyState stateType)
     {
         this.controller = controller;
-        this.enemyData = controller.enemyData;
+        this.enemyData = controller.inGameEnemyData;
         this.stateType = stateType;
     }
 

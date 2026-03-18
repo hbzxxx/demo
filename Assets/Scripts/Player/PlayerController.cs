@@ -13,6 +13,7 @@ public class PlayerController : Singleton<PlayerController>
 {
     [Header("移动设置")]
     public PlayerData playerData;
+    public PlayerData inGamePlayerData;
     public Rigidbody2D Rigidbody;
     public GameObject Visual;//玩家模型
 
@@ -30,6 +31,7 @@ public class PlayerController : Singleton<PlayerController>
 
     private void Awake()
     {
+        inGamePlayerData=playerData.Clone();
         Animator = Visual.GetComponent<Animator>();
         sr = Visual.GetComponent<SpriteRenderer>();
         ReloadAnimation.gameObject.SetActive(false);
@@ -106,31 +108,31 @@ public class PlayerController : Singleton<PlayerController>
     }
     IEnumerator HitFlash(int damage)
     {
-        if (playerData.isDead)
+        if (inGamePlayerData.isDead)
         {
             Debug.Log("玩家死亡");
             yield break;
         }
-        if (!playerData.invincibility)
+        if (!inGamePlayerData.invincibility)
         {
             yield return new WaitForSeconds(0.5f);
             sr.color = new Color32(255, 85, 85, 255);
             yield return new WaitForSeconds(0.2f);
-            playerData.curHealth = Math.Max(playerData.curHealth - damage, 0);
+            inGamePlayerData.curHealth = Math.Max(inGamePlayerData.curHealth - damage, 0);
             Debug.Log($"受到敌人的{damage}点伤害");
-            if (playerData.curHealth == 0)
+            if (inGamePlayerData.curHealth == 0)
             {
-                playerData.isDead = true;
+                inGamePlayerData.isDead = true;
                 sr.color = Color.white;
                 //播放死亡动画
                 //结束游戏，返回主界面
                 //重置游戏
             }
-            if (playerData.isDead) yield break;
+            if (inGamePlayerData.isDead) yield break;
             sr.color = new Color32(119, 93, 93, 255);
-            playerData.invincibility = true;
-            yield return new WaitForSeconds(playerData.invincibilityTime);
-            playerData.invincibility = false;
+            inGamePlayerData.invincibility = true;
+            yield return new WaitForSeconds(inGamePlayerData.invincibilityTime);
+            inGamePlayerData.invincibility = false;
             sr.color = originalColor;
             yield break;
         }
@@ -158,6 +160,6 @@ public class PlayerController : Singleton<PlayerController>
         {
             moveDir.Normalize();//归一化，保存角度
         }
-        Rigidbody.MovePosition(Rigidbody.position + moveDir * playerData.moveSpeed * Time.fixedDeltaTime);//当前位置 + 移动方向 * 速度 * 固定时间
+        Rigidbody.MovePosition(Rigidbody.position + moveDir * inGamePlayerData.moveSpeed * Time.fixedDeltaTime);//当前位置 + 移动方向 * 速度 * 固定时间
     }
 }

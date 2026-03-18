@@ -11,7 +11,6 @@ public class EnemyRunState : EnemyBaseState
 
     public override void EnterState()
     {
-        Debug.Log("进行追逐");
     }
     public override void UpdateState()
     {

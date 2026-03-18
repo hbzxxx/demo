@@ -8,7 +8,6 @@ public class EnemyIdleState : EnemyBaseState
 
     public override void EnterState()
     {
-        Debug.Log("玩家不在附近");
         controller.rigidbody2D.velocity = Vector3.zero;
     }
     public override void UpdateState()
