@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Enemy01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 6882253649948245966, guid: 7c87c242b39d4604387759ce9e4dcc36, type: 3}
-  enemyName: "\u5C0F\u6076\u9B54"
+  enemyName: "\u7EFF\u5DE8\u4EBA"
   attackDamage: 5
   moveSpeed: 0.7
   attackCD: 1
@@ -21,6 +21,7 @@ MonoBehaviour:
   detectRange: 1
   patrolRange: 1
   goldReward: 10
-  attackTime: 4.525794
+  attackTime: 27.40362
   maxHealth: 10
   curHealth: 10
+  isDead: 1

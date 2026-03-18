@@ -22,7 +22,8 @@ public class EnemyData : ScriptableObject
     [Header("敌人游戏变化属性")]
 
     public float attackTime;// 最后一次攻击时间攻击时间
-    public int maxHealth;// 最大生命值
-    public int curHealth;// 当前生命值
+    public float maxHealth;// 最大生命值
+    public float curHealth;// 当前生命值
+    public bool isDead;// 是否死亡
 
 }

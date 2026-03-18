@@ -4,17 +4,17 @@ using UnityEngine;
 
 public enum WeaponState
 {
-    NoShooting,  // ²»¿ÉÉä»÷
-    Shooting     // ¿ÉÉä»÷
+    NoShooting,  // ä¸å¯å°„å‡»
+    Shooting     // å¯å°„å‡»
 }
 
 public class WeaponController : MonoBehaviour
 {
-    [Header("ÎäÆ÷ÅäÖÃ")]
+    [Header("æ­¦å™¨é…ç½®")]
     [SerializeField] private WeaponDataSO weaponDataSO;
-    [SerializeField] private Transform firePos;// ×Óµ¯Î»ÖÃ
-    [Header("ÔËĞĞÊ±Êı¾İ")]
-    [SerializeField] private WeaponRuntimeData runtimeData; // ÎäÆ÷ÔËĞĞÊ±×´Ì¬
+    [SerializeField] private Transform firePos;// å­å¼¹ä½ç½®
+    [Header("è¿è¡Œæ—¶æ•°æ®")]
+    [SerializeField] private WeaponRuntimeData runtimeData; // æ­¦å™¨è¿è¡Œæ—¶çŠ¶æ€
 
     private Dictionary<WeaponState, WeaponBaseState> statePool;
     private WeaponBaseState currentState;
@@ -25,7 +25,7 @@ public class WeaponController : MonoBehaviour
 
     private void Awake()
     {
-        // ³õÊ¼»¯ÔËĞĞÊ±Êı¾İ
+        // åˆå§‹åŒ–è¿è¡Œæ—¶æ•°æ®
         runtimeData = new WeaponRuntimeData();
         runtimeData.Init(weaponDataSO);
 
@@ -62,18 +62,18 @@ public class WeaponController : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"Î´ÕÒµ½ÎäÆ÷×´Ì¬£º{newState}£¬Çë¼ì²é×´Ì¬³Ø£¡");
+            Debug.LogError($"æœªæ‰¾åˆ°æ­¦å™¨çŠ¶æ€ï¼š{newState}ï¼Œè¯·æ£€æŸ¥çŠ¶æ€æ± ï¼");
         }
     }
 
-    #region »»µ¯Âß¼­
+    #region æ¢å¼¹é€»è¾‘
     private void CheckGlobalInput()
     {
-        if (Input.GetKeyDown(KeyCode.R)&& !runtimeData.isReloading && runtimeData.currentClipAmmo < weaponDataSO.clipSize&& runtimeData.currentReserveAmmo > 0)//RÊÖ¶¯»»µ¯
+        if (Input.GetKeyDown(KeyCode.R)&& !runtimeData.isReloading && runtimeData.currentClipAmmo < weaponDataSO.clipSize&& runtimeData.currentReserveAmmo > 0)//Ræ‰‹åŠ¨æ¢å¼¹
         {
             StartCoroutine(ReloadCoroutine());
         }
-        if(runtimeData.currentClipAmmo ==0 && runtimeData.currentReserveAmmo > 0)//×Ô¶¯»»µ¯
+        if(runtimeData.currentClipAmmo ==0 && runtimeData.currentReserveAmmo > 0)//è‡ªåŠ¨æ¢å¼¹
         {
             StartCoroutine(ReloadCoroutine());
         }
@@ -86,14 +86,14 @@ public class WeaponController : MonoBehaviour
 
         if (weaponDataSO.ReloadSound != null)
         {
-            AudioSource.PlayClipAtPoint(weaponDataSO.ReloadSound, transform.position);// ²¥·Å»»µ¯ÒôĞ§
+            AudioSource.PlayClipAtPoint(weaponDataSO.ReloadSound, transform.position);// æ’­æ”¾æ¢å¼¹éŸ³æ•ˆ
         }
 
         EventCenter.TriggerEvent(EventType.PLAY_RELOAD_ANIMATION,weaponDataSO.reloadTime);
         yield return new WaitForSeconds(weaponDataSO.reloadTime);
         EventCenter.TriggerEvent(EventType.NO_PLAY_RELOAD_ANIMATION);
 
-        int ammoToReload = Mathf.Min(weaponDataSO.clipSize - runtimeData.currentClipAmmo, runtimeData.currentReserveAmmo);// ¼ÆËã»»µ¯ÊıÁ¿
+        int ammoToReload = Mathf.Min(weaponDataSO.clipSize - runtimeData.currentClipAmmo, runtimeData.currentReserveAmmo);// è®¡ç®—æ¢å¼¹æ•°é‡
         runtimeData.currentClipAmmo += ammoToReload;
         runtimeData.currentReserveAmmo -= ammoToReload;
         runtimeData.isReloading = false;
@@ -101,7 +101,7 @@ public class WeaponController : MonoBehaviour
     }
     #endregion
 
-    #region Éä»÷ºËĞÄÂß¼­
+    #region å°„å‡»æ ¸å¿ƒé€»è¾‘
     public void Fire()
     {
         if (runtimeData.isReloading || runtimeData.currentClipAmmo <= 0 || Time.time - runtimeData.lastFireTime < weaponDataSO.fireRate) return;
@@ -112,21 +112,20 @@ public class WeaponController : MonoBehaviour
         for (int i = 0; i < weaponDataSO.BulletPerFire; i++)
         {
             float randomAngle = Random.Range(-weaponDataSO.SpreadAngle, weaponDataSO.SpreadAngle);
-            Quaternion spreadRotation = firePos.rotation * Quaternion.Euler(0, 0, randomAngle);//Éä»÷½Ç¶È
+            Quaternion spreadRotation = firePos.rotation * Quaternion.Euler(0, 0, randomAngle);//å°„å‡»è§’åº¦
 
            
-            GameObject bullet = Instantiate(weaponDataSO.BulletPrefab, firePos.position, spreadRotation);//ÊµÀı»¯×Óµ¯
-            bullet.GetComponent<PlayerBullet>().Init(firePos.right, weaponDataSO.Damage, weaponDataSO.BulletSpeed);//³õÊ¼»¯×Óµ¯
+            GameObject bullet = Instantiate(weaponDataSO.BulletPrefab, firePos.position, spreadRotation);//å®ä¾‹åŒ–å­å¼¹
+            bullet.GetComponent<PlayerBullet>().Init(firePos.right, weaponDataSO.Damage, weaponDataSO.BulletSpeed);//åˆå§‹åŒ–å­å¼¹
 
-            Destroy(bullet, weaponDataSO.BulletTime);
-            CameraFollowMouseMgr.Instance.Shake();//TODO ¿ÉÔö¼Ó²»Í¬ÎäÆ÷Éä»÷Ê±µÄÕğ¶¯Ê±¼äºÍÇ¿¶È
+            CameraFollowMouseMgr.Instance.Shake();//TODO å¯å¢åŠ ä¸åŒæ­¦å™¨å°„å‡»æ—¶çš„éœ‡åŠ¨æ—¶é—´å’Œå¼ºåº¦
 
-            GameObject muzzleEffects =Instantiate(weaponDataSO.MuzzleEffects, firePos.position, firePos.rotation);//ÌØĞ§
+            GameObject muzzleEffects =Instantiate(weaponDataSO.MuzzleEffects, firePos.position, firePos.rotation);//ç‰¹æ•ˆ
             Destroy(muzzleEffects, weaponDataSO.MuzzleEffectsDisappear);
 
             if (weaponDataSO.FireSound != null)
             {
-                AudioSource.PlayClipAtPoint(weaponDataSO.FireSound, transform.position);//ÒôĞ§
+                AudioSource.PlayClipAtPoint(weaponDataSO.FireSound, transform.position);//éŸ³æ•ˆ
             }
         }
         if (runtimeData.currentClipAmmo <= 0)

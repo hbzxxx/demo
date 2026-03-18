@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -99,17 +100,40 @@ public class PlayerController : Singleton<PlayerController>
     }
     #endregion
 
-    public void Hit()
+    public void Hit(int damage)//玩家受伤
     {
-        StartCoroutine(HitFlash());
+        StartCoroutine(HitFlash(damage));
     }
-    IEnumerator HitFlash()
+    IEnumerator HitFlash(int damage)
     {
-        Debug.Log("xxxxxxxxxxxxxxx");
-        yield return new WaitForSeconds(0.8f);
-        sr.color = Color.red;
-        yield return new WaitForSeconds(0.1f);
-        sr.color = originalColor;
+        if (playerData.isDead)
+        {
+            Debug.Log("玩家死亡");
+            yield break;
+        }
+        if (!playerData.invincibility)
+        {
+            yield return new WaitForSeconds(0.5f);
+            sr.color = new Color32(255, 85, 85, 255);
+            yield return new WaitForSeconds(0.2f);
+            playerData.curHealth = Math.Max(playerData.curHealth - damage, 0);
+            Debug.Log($"受到敌人的{damage}点伤害");
+            if (playerData.curHealth == 0)
+            {
+                playerData.isDead = true;
+                sr.color = Color.white;
+                //播放死亡动画
+                //结束游戏，返回主界面
+                //重置游戏
+            }
+            if (playerData.isDead) yield break;
+            sr.color = new Color32(119, 93, 93, 255);
+            playerData.invincibility = true;
+            yield return new WaitForSeconds(playerData.invincibilityTime);
+            playerData.invincibility = false;
+            sr.color = originalColor;
+            yield break;
+        }
     }
     public void SwitchState(PlayerState newState)
     {

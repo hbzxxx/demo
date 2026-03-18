@@ -16,4 +16,7 @@ MonoBehaviour:
   playerName: "\u6D4B\u8BD5\u73A9\u5BB6"
   moveSpeed: 1
   maxHealth: 10
-  curHealth: 10
+  curHealth: 0
+  invincibilityTime: 2
+  invincibility: 0
+  isDead: 1

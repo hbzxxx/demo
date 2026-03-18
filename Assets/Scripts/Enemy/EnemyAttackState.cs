@@ -17,13 +17,12 @@ public class EnemyAttackState : EnemyBaseState
         Collider2D hit = Physics2D.OverlapCircle(controller.transform.position, enemyData.attackRange, controller.playerlayerMask);
         if (hit != null)
         {
-            if ( (Time.time - enemyData.attackTime) < enemyData.attackCD )
+            if ( (Time.time - enemyData.attackTime) > enemyData.attackCD )
             {
-                Debug.Log("ssssssssssss");
                 enemyData.attackTime= Time.time;//记录最后一次攻击时间
                 controller.animator.SetTrigger("Attack"); //攻击的动画
                 //玩家受到攻击的函数
-                PlayerController.Instance.Hit();
+                PlayerController.Instance.Hit(enemyData.attackDamage);
             }
         }
         else

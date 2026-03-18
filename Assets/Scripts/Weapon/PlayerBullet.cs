@@ -17,8 +17,15 @@ public class PlayerBullet : MonoBehaviour
     {
         ShootingDirection();
     }
-
-    #region ×Óµ¯Éä»÷·½Ïò
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Enemy"))
+        {
+            collision.GetComponent<EnemyController>().Hit(_damage);
+            Destroy(gameObject);
+        }
+    }
+    #region å­å¼¹å°„å‡»æ–¹å‘
     public void ShootingDirection()
     {
         transform.position += (Vector3)_firePos * _bulletSpeed * Time.deltaTime;

@@ -7,7 +7,8 @@ public enum EnemyState
 {
     Idle,
     Run,
-    Attack
+    Attack,
+    Dead
 }
 public class EnemyController : MonoBehaviour
 {
@@ -15,18 +16,20 @@ public class EnemyController : MonoBehaviour
     [HideInInspector]
     public Animator animator;//敌人动画
     public GameObject visual;//敌人模型
+    public SpriteRenderer sr;//敌人图片
+    public Color originalColor;//原始颜色
     public Rigidbody2D rigidbody2D;//敌人刚体
     public Transform player;//玩家的位置
     public LayerMask playerlayerMask;//玩家图层
     private EnemyBaseState currentState;//当前敌人状态
     private Dictionary<EnemyState, EnemyBaseState> statePool;
 
-    public bool isDie;
     private void Awake()
     {
-        rigidbody2D=GetComponent<Rigidbody2D>();
+        sr = visual.GetComponent<SpriteRenderer>();
+        originalColor= sr.color;
+        rigidbody2D =GetComponent<Rigidbody2D>();
         playerlayerMask = LayerMask.GetMask("Player");
-        isDie = false;
         player = GameObject.Find("Player").transform;
         animator = visual.GetComponent<Animator>();
         statePool = new Dictionary<EnemyState, EnemyBaseState>()
@@ -34,6 +37,7 @@ public class EnemyController : MonoBehaviour
             { EnemyState.Idle, new EnemyIdleState(this) },
             { EnemyState.Run, new EnemyRunState(this) },
             { EnemyState.Attack, new EnemyAttackState(this) },
+            { EnemyState.Dead, new EnemyDeadState(this) },
         };
     }
     private void Update()
@@ -42,6 +46,32 @@ public class EnemyController : MonoBehaviour
         {
             currentState.UpdateState();
         }
+    }
+    public void Hit(float damage)//敌人受伤
+    {
+        StartCoroutine(HitFlash(damage));
+    }
+    IEnumerator HitFlash(float damage)
+    {
+        if (enemyData.isDead)
+        {
+            Debug.Log("敌人死亡");
+            yield break;
+        }
+        sr.color = new Color32(255, 85, 85, 255);
+        yield return new WaitForSeconds(0.2f);
+        enemyData.curHealth = Math.Max(enemyData.curHealth - damage, 0);
+        Debug.Log($"受到玩家的{damage}点伤害");
+        if (enemyData.curHealth == 0)
+        {
+            enemyData.isDead = true;
+            sr.color = Color.white;
+            GetComponent<CapsuleCollider2D>().enabled = false;
+            Destroy(gameObject, 5f);
+            SwitchState(EnemyState.Dead);
+        }
+        if (enemyData.isDead) yield break;
+        yield break;
     }
     private void Start()
     {

@@ -13,7 +13,7 @@ public class EnemyIdleState : EnemyBaseState
     }
     public override void UpdateState()
     {
-        if (controller.isDie) return;
+        if (enemyData.isDead) return;
         float dist = Vector2.Distance(controller.transform.position, controller.player.position);//与玩家的距离
         if (dist <= enemyData.detectRange)//在追踪范围内
         {
