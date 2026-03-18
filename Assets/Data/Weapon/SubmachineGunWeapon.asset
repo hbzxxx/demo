@@ -17,7 +17,7 @@ MonoBehaviour:
   reloadTime: 1
   clipSize: 30
   maxReserveAmmo: 9999
-  BulletName: "\u51B2\u950B\u67AA\u5B50\u5F39"
+  BulletName: "\u51B2\u950B\u67AA"
   BulletSpeed: 2
   BulletPrefab: {fileID: 748412370525610994, guid: d95cc8d7db122c74390d82f0ebac343c, type: 3}
   BulletTime: 2

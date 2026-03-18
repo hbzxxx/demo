@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PlayerRunState : PlayerBaseState
 {
-    public Vector2 _move;//ÒÆ¶¯½Ç¶È
+    public Vector2 _move;//ç§»åŠ¨è§’åº¦
 
     public PlayerRunState(PlayerController player) : base(player, PlayerState.Run) { }
 
@@ -36,6 +36,5 @@ public class PlayerRunState : PlayerBaseState
 
     public override void ExitState()
     {
-        Debug.Log("ÍË³öÒÆ¶¯×´Ì¬");
     }
 }

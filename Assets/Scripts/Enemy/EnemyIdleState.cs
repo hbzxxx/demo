@@ -1,0 +1,28 @@
+using UnityEngine;
+
+public class EnemyIdleState : EnemyBaseState
+{
+    public EnemyIdleState(EnemyController controller) : base(controller, EnemyState.Idle)
+    {
+    }
+
+    public override void EnterState()
+    {
+        Debug.Log("玩家不在附近");
+        controller.rigidbody2D.velocity = Vector3.zero;
+    }
+    public override void UpdateState()
+    {
+        if (controller.isDie) return;
+        float dist = Vector2.Distance(controller.transform.position, controller.player.position);//与玩家的距离
+        Debug.Log(dist);
+        if (dist <= enemyData.detectRange)//在追踪范围内
+        {
+            Debug.Log("玩家在附近");
+            controller.SwitchState(EnemyState.Run);
+        }
+    }
+    public override void ExitState()
+    {
+    }
+}
