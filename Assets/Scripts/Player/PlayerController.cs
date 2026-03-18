@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,27 +8,32 @@ public enum PlayerState
     Run,
 }
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : Singleton<PlayerController>
 {
-    [Header("ÒÆ¶¯ÉèÖÃ")]
-    public float MoveSpeed = 1f;//ÒÆ¶¯ËÙ¶È
+    [Header("ç§»åŠ¨è®¾ç½®")]
+    public PlayerData playerData;
     public Rigidbody2D Rigidbody;
-    public GameObject Visual;//Íæ¼ÒÄ£ĞÍ
+    public GameObject Visual;//ç©å®¶æ¨¡å‹
+
+    public SpriteRenderer sr;//ç©å®¶å›¾ç‰‡
+    public Color originalColor;//åŸå§‹é¢œè‰²
     [HideInInspector]
     public Animator Animator;
     public Animator ReloadAnimation;
 
-    private WeaponController weaponController;//ÎäÆ÷
-    private bool isFacingRight = true; // ³õÊ¼³¯ÓÒ
+    private WeaponController weaponController;//æ­¦å™¨
+    private bool isFacingRight = true; // åˆå§‹æœå³
 
-    private PlayerBaseState currentState;//µ±Ç°Íæ¼Ò×´Ì¬
+    private PlayerBaseState currentState;//å½“å‰ç©å®¶çŠ¶æ€
     private Dictionary<PlayerState, PlayerBaseState> statePool;
 
     private void Awake()
     {
         Animator = Visual.GetComponent<Animator>();
+        sr = Visual.GetComponent<SpriteRenderer>();
         ReloadAnimation.gameObject.SetActive(false);
-        weaponController = GetComponentInChildren<WeaponController>();//×ÓÑ°ÕÒ¶ÔÏó×é¼ş
+        originalColor = sr.color;
+        weaponController = GetComponentInChildren<WeaponController>();//å­å¯»æ‰¾å¯¹è±¡ç»„ä»¶
         statePool = new Dictionary<PlayerState, PlayerBaseState>()
         {
             { PlayerState.Idle, new PlayerIdleState(this) },
@@ -53,24 +59,24 @@ public class PlayerController : MonoBehaviour
     {
         ReloadAnimation.speed=1 / reloadPlayTime;
         ReloadAnimation.gameObject.SetActive(true);
-        Debug.Log("Ö´ĞĞ»»µ¯¶¯»­");
+        Debug.Log("æ‰§è¡Œæ¢å¼¹åŠ¨ç”»");
     }
     private void NoPlayReloadAnimation()
     {
         ReloadAnimation.gameObject.SetActive(false);
-        Debug.Log("Ö´ĞĞ¹Ø±Õ»»µ¯¶¯»­");
+        Debug.Log("æ‰§è¡Œå…³é—­æ¢å¼¹åŠ¨ç”»");
     }
-    #region ÈËÎïÓëÎäÆ÷µÄĞı×ª
+    #region äººç‰©ä¸æ­¦å™¨çš„æ—‹è½¬
     private void UpdateWeaponAim()
     {
         if (weaponController == null) return;
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);//½«Êó±êµÄÆÁÄ»×ø±ê×ª»»ÎªÊÀ½ç×ø±ê
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);//å°†é¼ æ ‡çš„å±å¹•åæ ‡è½¬æ¢ä¸ºä¸–ç•Œåæ ‡
         mouseWorldPos.z = 0;
         Vector2 aimDir = mouseWorldPos - weaponController.transform.position;
-        float aimAngle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;//Ğı×ª½Ç¶È
-        weaponController.transform.rotation = Quaternion.Euler(0, 0, aimAngle);//ÉèÖÃÎäÆ÷µÄĞı×ª½Ç¶È
+        float aimAngle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;//æ—‹è½¬è§’åº¦
+        weaponController.transform.rotation = Quaternion.Euler(0, 0, aimAngle);//è®¾ç½®æ­¦å™¨çš„æ—‹è½¬è§’åº¦
 
-        bool newFacingRight = mouseWorldPos.x > Visual.transform.position.x;//Êó±êÊÇ·ñÔÚÈËÎïµÄÓÒ±ß
+        bool newFacingRight = mouseWorldPos.x > Visual.transform.position.x;//é¼ æ ‡æ˜¯å¦åœ¨äººç‰©çš„å³è¾¹
         if (newFacingRight != isFacingRight)
         {
             FlipPlayer(newFacingRight);
@@ -79,7 +85,7 @@ public class PlayerController : MonoBehaviour
     }
     private void FlipPlayer(bool newFacingRight)
     {
-        Vector3 parent = weaponController.transform.parent.localPosition;//ÎäÆ÷·ÅÖÃµãµÄ¾Ö²¿Î»ÖÃ
+        Vector3 parent = weaponController.transform.parent.localPosition;//æ­¦å™¨æ”¾ç½®ç‚¹çš„å±€éƒ¨ä½ç½®
         parent.x = -parent.x;
         weaponController.transform.parent.localPosition = parent;
 
@@ -88,11 +94,23 @@ public class PlayerController : MonoBehaviour
         weaponController.transform.localScale = scale1;
 
         Vector3 scale = Visual.transform.localScale;
-        scale.x = Mathf.Abs(scale.x) * (newFacingRight ? 1 : -1);//´¦ÀíÎïÌå·­×ªÊ±±£³ÖËõ·ÅÖµÒ»ÖÂ
+        scale.x = Mathf.Abs(scale.x) * (newFacingRight ? 1 : -1);//å¤„ç†ç‰©ä½“ç¿»è½¬æ—¶ä¿æŒç¼©æ”¾å€¼ä¸€è‡´
         Visual.transform.localScale = scale;
     }
     #endregion
 
+    public void Hit()
+    {
+        StartCoroutine(HitFlash());
+    }
+    IEnumerator HitFlash()
+    {
+        Debug.Log("xxxxxxxxxxxxxxx");
+        yield return new WaitForSeconds(0.8f);
+        sr.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        sr.color = originalColor;
+    }
     public void SwitchState(PlayerState newState)
     {
         if (currentState != null)
@@ -107,15 +125,15 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"Î´ÕÒµ½×´Ì¬£º{newState}£¬Çë¼ì²é×´Ì¬³Ø£¡");
+            Debug.LogError($"æœªæ‰¾åˆ°çŠ¶æ€ï¼š{newState}ï¼Œè¯·æ£€æŸ¥çŠ¶æ€æ± ï¼");
         }
     }
     public void MovePlayer(Vector2 moveDir)
     {
         if (moveDir.magnitude > 1)
         {
-            moveDir.Normalize();//¹éÒ»»¯£¬±£´æ½Ç¶È
+            moveDir.Normalize();//å½’ä¸€åŒ–ï¼Œä¿å­˜è§’åº¦
         }
-        Rigidbody.MovePosition(Rigidbody.position + moveDir * MoveSpeed * Time.fixedDeltaTime);//µ±Ç°Î»ÖÃ + ÒÆ¶¯·½Ïò * ËÙ¶È * ¹Ì¶¨Ê±¼ä
+        Rigidbody.MovePosition(Rigidbody.position + moveDir * playerData.moveSpeed * Time.fixedDeltaTime);//å½“å‰ä½ç½® + ç§»åŠ¨æ–¹å‘ * é€Ÿåº¦ * å›ºå®šæ—¶é—´
     }
 }

@@ -21,6 +21,6 @@ MonoBehaviour:
   detectRange: 1
   patrolRange: 1
   goldReward: 10
-  attackTime: 0
-  maxHealth: 100
-  curHealth: 100
+  attackTime: 4.525794
+  maxHealth: 10
+  curHealth: 10

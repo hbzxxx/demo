@@ -15,10 +15,8 @@ public class EnemyIdleState : EnemyBaseState
     {
         if (controller.isDie) return;
         float dist = Vector2.Distance(controller.transform.position, controller.player.position);//与玩家的距离
-        Debug.Log(dist);
         if (dist <= enemyData.detectRange)//在追踪范围内
         {
-            Debug.Log("玩家在附近");
             controller.SwitchState(EnemyState.Run);
         }
     }

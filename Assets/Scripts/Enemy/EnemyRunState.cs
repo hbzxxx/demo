@@ -12,7 +12,6 @@ public class EnemyRunState : EnemyBaseState
     public override void EnterState()
     {
         Debug.Log("进行追逐");
-        MoveToPlayer();
     }
     public override void UpdateState()
     {
@@ -24,17 +23,23 @@ public class EnemyRunState : EnemyBaseState
         }
         else
         {
-            MoveToPlayer();
+            MoveToPlayer(dist);
         }
     }
 
-    public void MoveToPlayer()
+    public void MoveToPlayer(float dist)
     {
-        Vector2 dir = (controller.player.position - controller.transform.position).normalized;
-        controller.rigidbody2D.velocity = dir * enemyData.moveSpeed;
+        if (dist <= enemyData.attackRange)
+        {
+            controller.SwitchState(EnemyState.Attack);
+        }
+        else
+        {
+            Vector2 dir = (controller.player.position - controller.transform.position).normalized;
+            controller.rigidbody2D.velocity = dir * enemyData.moveSpeed;
+        }
     }
     public override void ExitState()
     {
-        throw new System.NotImplementedException();
     }
 }

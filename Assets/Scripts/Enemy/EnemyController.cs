@@ -17,6 +17,7 @@ public class EnemyController : MonoBehaviour
     public GameObject visual;//敌人模型
     public Rigidbody2D rigidbody2D;//敌人刚体
     public Transform player;//玩家的位置
+    public LayerMask playerlayerMask;//玩家图层
     private EnemyBaseState currentState;//当前敌人状态
     private Dictionary<EnemyState, EnemyBaseState> statePool;
 
@@ -24,6 +25,7 @@ public class EnemyController : MonoBehaviour
     private void Awake()
     {
         rigidbody2D=GetComponent<Rigidbody2D>();
+        playerlayerMask = LayerMask.GetMask("Player");
         isDie = false;
         player = GameObject.Find("Player").transform;
         animator = visual.GetComponent<Animator>();
@@ -33,6 +35,13 @@ public class EnemyController : MonoBehaviour
             { EnemyState.Run, new EnemyRunState(this) },
             { EnemyState.Attack, new EnemyAttackState(this) },
         };
+    }
+    private void Update()
+    {
+        if (currentState != null)
+        {
+            currentState.UpdateState();
+        }
     }
     private void Start()
     {
