@@ -1,0 +1,9 @@
+{
+	"infoList":
+	[
+	{"panelTypestring":"MainUI","path":"UIDemo/MainUI"},
+	{"panelTypestring":"MiniGameUI","path":"UIDemo/MiniGameUI"},
+	{"panelTypestring":"SettlementUI","path":"UIDemo/SettlementUI"},
+	{"panelTypestring":"BulletMessageUI","path":"UIDemo/BulletMessageUI"}
+    ]
+}

@@ -13,6 +13,7 @@ public class PlayerController : Singleton<PlayerController>
 {
     [Header("移动设置")]
     public PlayerData playerData;
+    [HideInInspector]
     public PlayerData inGamePlayerData;
     public Rigidbody2D Rigidbody;
     public GameObject Visual;//玩家模型
